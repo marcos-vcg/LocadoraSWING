@@ -26,9 +26,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
-import classes.Cliente;
-import classes.Dependente;
-import classes.Grau;
+import model.Cliente;
+import model.Dependente;
+import model.Grau;
 
 @SuppressWarnings("serial")
 public class ClienteCadastro extends JInternalFrame {

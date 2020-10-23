@@ -22,11 +22,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import classes.Categoria;
-import classes.Cliente;
-import classes.Filme;
-import classes.Genero;
-import classes.Locacao;
+import model.Categoria;
+import model.Cliente;
+import model.Filme;
+import model.Genero;
+import model.Locacao;
 
 
 @SuppressWarnings("serial")

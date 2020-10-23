@@ -27,9 +27,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
-import classes.Categoria;
-import classes.Filme;
-import classes.Genero;
+import model.Categoria;
+import model.Filme;
+import model.Genero;
 
 
 @SuppressWarnings("serial")

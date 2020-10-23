@@ -18,7 +18,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import classes.Categoria;
+import model.Categoria;
 
 @SuppressWarnings("serial")
 public class CategoriaCadastro extends JInternalFrame {

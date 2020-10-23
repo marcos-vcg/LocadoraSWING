@@ -15,12 +15,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import classes.Categoria;
-import classes.Cliente;
-import classes.Dependente;
-import classes.Filme;
-import classes.Genero;
-import classes.Locacao;
+import model.Categoria;
+import model.Cliente;
+import model.Dependente;
+import model.Filme;
+import model.Genero;
+import model.Locacao;
 
 
 class Main {
@@ -37,7 +37,7 @@ class Main {
 
 		//generos = new ArrayList<>(Arrays.asList (new String[]{"", "Ação", "Aventura", "Comédia", "Drama", "Romance", "Suspense", "Terror", "Musical", "Retrô", "Infantil"}));
 		generos = new ArrayList<Genero>();
-		
+		/*
 		generos.add(new Genero(""));
 		generos.add(new Genero("Ação"));
 		generos.add(new Genero("Aventura"));
@@ -49,6 +49,7 @@ class Main {
 		generos.add(new Genero("Musical"));
 		generos.add(new Genero("Retrô"));
 		generos.add(new Genero("Infantil"));
+		*/
 		
 		
 		//categorias = new ArrayList<String>(Arrays.asList (new String[]{"", "Lançamento", "Padrão", "Antigo"}));
@@ -66,11 +67,12 @@ class Main {
 		
 		// Deserializa => Carrega dos arquivos 
 		try {
-			
+			/*
 			generos = (ArrayList<Genero>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos");
 			int contGenero = 0;
 			for(Genero g: generos) { if(g.getId() > contGenero) contGenero = g.getId();	}
 			Genero.setContador(contGenero+1);
+			*/
 			
 			categorias = (ArrayList<Categoria>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias");
 			int contCategoria = 0;
@@ -115,7 +117,7 @@ class Main {
 		JDesktopPane jdpGenero = new JDesktopPane();
 		i1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				GeneroCadastro generoFrame = new GeneroCadastro(generos);
+				GeneroCadastro generoFrame = new GeneroCadastro();
 				generoFrame.setVisible(true);
 				jdpGenero.add(generoFrame);
 				f.setContentPane(jdpGenero);
@@ -203,7 +205,7 @@ class Main {
 			public void windowClosing(WindowEvent e) {
 				//serializa
 				try {
-					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos", generos);
+					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos", generos);
 					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias", categorias);
 					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes", filmes);
 					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes", clientes); 

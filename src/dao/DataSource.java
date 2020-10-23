@@ -19,11 +19,13 @@ public class DataSource {
 			
 			hostname = "localhost";
 			port 	 = 3306;
-			database = "javabd";
+			database = "locadora";
 			username = "root";
 			password = "0102301023";
 			
-			String url = "jdbc:mysql://"+hostname+":"+port+"/"+database;
+			String ssl = "?useTimezone=true&serverTimezone=UTC&useSSL=false";		// Tratamento de erro de falta de SSL
+			String url = "jdbc:mysql://"+hostname+":"+port+"/"+database+ssl;
+			//jdbc:mysql://localhost:3306/sistema?useTimezone=true&serverTimezone=UTC&useSSL=false;
 			
 			DriverManager.registerDriver(new com.mysql.jdbc.Driver());		// Driver da Biblioteca importada
 			connection = DriverManager.getConnection(url, username, password);

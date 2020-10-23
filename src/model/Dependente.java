@@ -1,22 +1,22 @@
-package classes;
+package model;
 
 import java.io.Serializable;
 
-public class Categoria implements Serializable{
+public class Dependente implements Serializable{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private String nome;
-	private String preco;
+	private Grau grau;
 	private Integer id;
-	static Integer contador = 0;
+	static int contador = 0;
 	
-	public Categoria(String nome, String preco) {
+	public Dependente(String nome, Grau grau) {
 		super();
 		this.nome = nome;
-		this.preco = preco;
+		this.grau = grau;
 		this.id = contador++;
 	}
 
@@ -27,19 +27,19 @@ public class Categoria implements Serializable{
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
-	public String getPreco() {
-		return preco;
+	
+	public Grau getGrau() {
+		return grau;
 	}
 
-	public void setPreco(String preco) {
-		this.preco = preco;
+	public void setGrau(Grau grau) {
+		this.grau = grau;
 	}
 	
 	public Integer getId() {
 		return id;
 	}
-
+	
 	public static void setContador(int cont) {
 		contador = cont;
 	}

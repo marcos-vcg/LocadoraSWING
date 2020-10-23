@@ -17,14 +17,19 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import classes.Genero;
+
+
+import dao.DataSource;
+import dao.GeneroDAO;
+import model.Cliente;
+import model.Genero;
 
 @SuppressWarnings("serial")
 public class GeneroCadastro extends JInternalFrame {
 	static final int xPosition = 140, yPosition = 90;
 	static boolean edit = false;
 	
-	public GeneroCadastro(ArrayList<Genero> cadGenero) {
+	public GeneroCadastro() {
 		super("Cadastro de Gêneros", true, // resizable
 				true, // closable
 				true, // maximizable
@@ -32,6 +37,14 @@ public class GeneroCadastro extends JInternalFrame {
 		setSize(350, 300);
 		setLocation(xPosition, yPosition);
 		setLayout(null);
+		
+		
+		// Controlador do Acesso ao Banco de Dados
+		DataSource dataSource = new DataSource();
+		GeneroDAO generoDao = new GeneroDAO(dataSource);
+		ArrayList<Genero> cadGenero = generoDao.readAll();
+		
+		
 		
 		
 		
@@ -160,7 +173,8 @@ public class GeneroCadastro extends JInternalFrame {
 				
 				//cadGenero.remove(tbl_generos.getSelectedRow());   // Troca por remoção através do ID
 				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_generos.getSelectedRow(), 0);
-				for(int i = 0; i < cadGenero.size(); i++) { if (cadGenero.get(i).getId() == idSelected) {cadGenero.get(i).setNome(""); cadGenero.remove(i);}  }
+				generoDao.apagarGenero(idSelected);
+				//for(int i = 0; i < cadGenero.size(); i++) { if (cadGenero.get(i).getId() == idSelected) {cadGenero.get(i).setNome(""); cadGenero.remove(i);}  }
 				JOptionPane.showMessageDialog(null, "Exclusão efetuada com sucesso!", "Exclusão Efetuada!", JOptionPane.WARNING_MESSAGE);
 				
 				// Remonta Tabela
@@ -199,7 +213,8 @@ public class GeneroCadastro extends JInternalFrame {
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
 					Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_generos.getSelectedRow(), 0);
-					for(int i = 0; i < cadGenero.size(); i++) { if (cadGenero.get(i).getId() == idSelected) {cadGenero.get(i).setNome(palavra);}  }
+					generoDao.editarGenero(idSelected, palavra);
+					//for(int i = 0; i < cadGenero.size(); i++) { if (cadGenero.get(i).getId() == idSelected) {cadGenero.get(i).setNome(palavra);}  }
 					JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 					
 					abas.setSelectedIndex(0);
@@ -210,7 +225,8 @@ public class GeneroCadastro extends JInternalFrame {
 					String palavra = txf_novo_genero.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
-					cadGenero.add(new Genero(palavra));
+					generoDao.inserirGenero(palavra);
+					//cadGenero.add(new Genero(palavra));
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
 					txf_novo_genero.setText("");
 				}
