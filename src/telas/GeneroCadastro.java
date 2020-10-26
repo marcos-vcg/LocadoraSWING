@@ -183,7 +183,7 @@ public class GeneroCadastro extends JInternalFrame {
 		btn_excluir.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				
-				generoDao.apagarGenero(idSelected);
+				generoDao.apagar(idSelected);
 				JOptionPane.showMessageDialog(null, "Exclusão efetuada com sucesso!", "Exclusão Efetuada!", JOptionPane.WARNING_MESSAGE);
 				limparComponentes();
 				preencherTabela();
@@ -213,13 +213,13 @@ public class GeneroCadastro extends JInternalFrame {
 				} else if (edit) {
 					
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
-					generoDao.editarGenero(idSelected, palavra);
+					generoDao.editar(idSelected, palavra);
 					JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 						
 				} else {
 
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
-					generoDao.inserirGenero(palavra);
+					generoDao.inserir(palavra);
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
 				
 				}

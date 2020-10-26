@@ -8,14 +8,16 @@ import model.Categoria;
 
 public class CategoriaDAO {
 	private DataSource datasource;
+	private String tabela;
 	
 	public CategoriaDAO(DataSource datasource){
 		this.datasource = datasource;
+		this.tabela = "categoria";
 	}
 	
 	public ArrayList<Categoria> readAll(){
 		try {
-			String SQL = "SELECT * FROM categoria ORDER BY nome";
+			String SQL = "SELECT * FROM " + tabela + " ORDER BY nome";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ResultSet rs = ps.executeQuery();
 			
@@ -40,10 +42,10 @@ public class CategoriaDAO {
 		return null;
 	}
 	
-	public void inserirCategoria(String nome, String preco) {
+	public void inserir(String nome, String preco) {
 		try {
 			
-			String SQL = "INSERT INTO categoria (nome, preco) VALUES ('" + nome + "', '" + preco + "');";
+			String SQL = "INSERT INTO " + tabela + " (nome, preco) VALUES ('" + nome + "', '" + preco + "');";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
@@ -53,10 +55,10 @@ public class CategoriaDAO {
 		}
 	}
 	
-	public void editarCategoria(Integer id, String nome, String preco) {
+	public void editar(Integer id, String nome, String preco) {
 		try {
 			
-			String SQL = "UPDATE categoria SET nome = '" + nome + "', preco = '" + preco + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET nome = '" + nome + "', preco = '" + preco + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();
@@ -66,10 +68,10 @@ public class CategoriaDAO {
 		}
 	}
 	
-	public void apagarCategoria(Integer id) {
+	public void apagar(Integer id) {
 		try {
 			
-			String SQL = "DELETE FROM categoria WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "DELETE FROM " + tabela + " WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);												// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();

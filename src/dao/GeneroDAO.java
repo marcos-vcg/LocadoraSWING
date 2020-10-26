@@ -8,14 +8,16 @@ import model.Genero;
 
 public class GeneroDAO {
 	private DataSource datasource;
+	private String tabela;
 	
 	public GeneroDAO(DataSource datasource){
 		this.datasource = datasource;
+		this.tabela = "genero";
 	}
 	
 	public ArrayList<Genero> readAll(){
 		try {
-			String SQL = "SELECT * FROM genero ORDER BY nome";
+			String SQL = "SELECT * FROM " + tabela + " ORDER BY nome";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ResultSet rs = ps.executeQuery();
 			
@@ -39,10 +41,10 @@ public class GeneroDAO {
 		return null;
 	}
 	
-	public void inserirGenero(String nome) {
+	public void inserir(String nome) {
 		try {
 			
-			String SQL = "INSERT INTO genero (nome) VALUES ('" + nome + "');";
+			String SQL = "INSERT INTO " + tabela + " (nome) VALUES ('" + nome + "');";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
@@ -52,10 +54,10 @@ public class GeneroDAO {
 		}
 	}
 	
-	public void editarGenero(Integer id, String nome) {
+	public void editar(Integer id, String nome) {
 		try {
 			
-			String SQL = "UPDATE genero SET nome = '" + nome + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET nome = '" + nome + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();
@@ -65,10 +67,10 @@ public class GeneroDAO {
 		}
 	}
 	
-	public void apagarGenero(Integer id) {
+	public void apagar(Integer id) {
 		try {
 			
-			String SQL = "DELETE FROM genero WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "DELETE FROM " + tabela + " WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);												// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();

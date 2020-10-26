@@ -189,7 +189,7 @@ public class CategoriaCadastro extends JInternalFrame {
 		btn_excluir.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 
-				categoriaDao.apagarCategoria(idSelected);
+				categoriaDao.apagar(idSelected);
 				JOptionPane.showMessageDialog(null, "Exclusão efetuada com sucesso!", "Exclusão Efetuada!", JOptionPane.WARNING_MESSAGE);
 				limparComponentes();
 				preencherTabela();
@@ -220,13 +220,13 @@ public class CategoriaCadastro extends JInternalFrame {
 				} else if (edit) {
 					
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
-					categoriaDao.editarCategoria(idSelected, palavra, preco);
+					categoriaDao.editar(idSelected, palavra, preco);
 					JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 					
 				} else {
 					
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
-					categoriaDao.inserirCategoria(palavra, preco);
+					categoriaDao.inserir(palavra, preco);
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
 	
 				}
