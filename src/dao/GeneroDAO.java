@@ -15,6 +15,29 @@ public class GeneroDAO {
 		this.tabela = "genero";
 	}
 	
+	
+	public Genero busca(Integer id){
+		try {
+			String SQL = "SELECT * FROM " + tabela + " WHERE id = '" + id + "'";
+			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			ResultSet rs = ps.executeQuery();
+			
+			Genero genero = new Genero();
+			genero.setId(rs.getInt("id"));
+			genero.setNome(rs.getString("nome"));
+	
+			ps.close();
+			return genero;
+			
+		} catch(SQLException ex) {
+			System.err.println("Erro ao Recuperar " + ex.getMessage());
+		} catch(Exception ex) {
+			System.err.println("Erro Geral " + ex.getMessage());
+		}
+		return null;
+	}
+	
+	
 	public ArrayList<Genero> readAll(){
 		try {
 			String SQL = "SELECT * FROM " + tabela + " ORDER BY nome";

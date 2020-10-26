@@ -6,10 +6,11 @@ import javax.swing.Icon;
 
 public class Filme implements Serializable{
 
-	/**
-	 * 
-	 */
+
+
 	private static final long serialVersionUID = 1L;
+	
+	private Integer id;
 	private String titulo;
 	private Genero genero;
 	private Integer copias;
@@ -18,17 +19,18 @@ public class Filme implements Serializable{
 	private String lancamento;
 	private Icon imagem;
 	private Categoria categoria;
-	private Integer id;
-	static int contador = 0;
 
-	public Filme(String titulo, Genero genero, Integer copias) {
-		super();
-		this.titulo = titulo;
-		this.genero = genero;
-		this.copias = copias;
-		this.id = contador++;
+
+	
+	
+	public Integer getId() {
+		return id;
 	}
-
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
 	public String getTitulo() {
 		return titulo;
 	}
@@ -93,12 +95,6 @@ public class Filme implements Serializable{
 		this.categoria = categoria;
 	}
 	
-	public Integer getId() {
-		return id;
-	}
 	
-	public static void setContador(int cont) {
-		contador = cont;
-	}
 
 }

@@ -27,6 +27,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import dao.CategoriaDAO;
+import dao.DataSource;
+import dao.FilmeDAO;
+import dao.GeneroDAO;
 import model.Categoria;
 import model.Filme;
 import model.Genero;
@@ -38,31 +42,28 @@ public class FilmeCadastro extends JInternalFrame {
 	static final int xPosition = 30, yPosition = 30;
 	private final Action cancelar = new SwingAction_cancelar();
 	private boolean edit = false;
-	JTabbedPane abas;
-	JPanel pnl_consulta, pnl_cadastro;
-	JTextField txf_titulo_pesquisa, txf_genero_pesquisa, txf_lancamento_pesquisa;
-	JButton btn_pesquisar;
-	DefaultTableModel tbl_modelo;
-	JTable tbl_filmes;
-	JScrollPane scp_filmes;
-	JButton btn_editar, btn_excluir, btn_novo;
 	
-	// Aba Cadastro
-	JTextField txf_titulo, txf_copias, txf_duracao, txf_lancamento, txf_imagem;
-	JComboBox<String> cbx_genero, cbx_categoria;
-	JLabel lbl_mostrar_imagem;
-	JButton btn_upload;
-	JTextArea txa_sinopse;
-	JScrollPane scrl_sinopse;
-	JButton btn_cancelar, btn_cadastro;
-
+	DataSource dataSource;
+	FilmeDAO filmeDao;
+	GeneroDAO generoDao;
+	CategoriaDAO categoriaDao;
 	ArrayList<Filme> cadFilme;	
 	ArrayList<Genero> cadGenero;
 	ArrayList<Categoria> cadCategoria;
-
+	
+	JTabbedPane abas;
+	JPanel pnl_consulta, pnl_cadastro;
+	JTextField txf_titulo_pesquisa, txf_genero_pesquisa, txf_lancamento_pesquisa, txf_titulo, txf_copias, txf_duracao, txf_lancamento, txf_imagem;
+	JButton btn_pesquisar, btn_editar, btn_excluir, btn_novo,  btn_cancelar, btn_cadastro, btn_upload;
+	DefaultTableModel tbl_modelo;
+	JTable tbl_filmes;
+	JScrollPane scp_filmes, scrl_sinopse;
+	JComboBox<String> cbx_genero, cbx_categoria;
+	JLabel lbl_mostrar_imagem;
+	JTextArea txa_sinopse;
 	
 		
-	public FilmeCadastro(ArrayList<Filme> cadFilme, ArrayList<Genero> cadGenero, ArrayList<Categoria> cadCategoria) {
+	public FilmeCadastro() {
 		super("Cadastro de Filmes", true, // resizable
 				true, // closable
 				true, // maximizable
@@ -71,13 +72,10 @@ public class FilmeCadastro extends JInternalFrame {
 		setLocation(xPosition, yPosition);
 		setLayout(null);
 
-		this.cadFilme = cadFilme;
-		this.cadGenero = cadGenero;
-		this.cadCategoria = cadCategoria;
 		
-		setarElementos (cadGenero, cadCategoria);
+		setarElementos ();
 		adicionarListeners();
-		preencherTabela(cadFilme);
+		preencherTabela();
 		limparComponentes();	
 		
 	}
@@ -85,7 +83,23 @@ public class FilmeCadastro extends JInternalFrame {
 	
 	
 	
-	private void setarElementos (ArrayList<Genero> cadGenero, ArrayList<Categoria> cadCategoria) {
+	private void setarElementos () {
+		
+		// Controlador do Acesso ao Banco de Dados
+		dataSource = new DataSource();
+		
+		generoDao = new GeneroDAO(dataSource);
+		filmeDao = new FilmeDAO(dataSource);
+		generoDao = new GeneroDAO(dataSource);
+		categoriaDao = new CategoriaDAO(dataSource);
+		
+		
+		this.cadFilme = filmeDao.readAll();
+		this.cadGenero = generoDao.readAll();
+		this.cadCategoria = categoriaDao.readAll();
+
+		
+		
 		// Criar Abas
 		abas = new JTabbedPane(JTabbedPane.TOP);
 		add(abas).setBounds(10, 11, 540, 300);
@@ -276,7 +290,7 @@ public class FilmeCadastro extends JInternalFrame {
 				
 				// Condição se houver exclusivamente todos os campos pesquisados
 				if(titulo.isEmpty() && genero.isEmpty() && lancamento.isEmpty()) {
-					preencherTabela(cadFilme);
+					preencherTabela();
 				} else {
 					for (Filme f : cadFilme) {
 	
@@ -324,7 +338,7 @@ public class FilmeCadastro extends JInternalFrame {
 				for(int i = 0; i < cadFilme.size(); i++) { if (cadFilme.get(i).getId() == idSelected) {cadFilme.remove(i);}  }
 				JOptionPane.showMessageDialog(null, "Exclusão efetuada com sucesso!", "Exclusão Efetuada!", JOptionPane.WARNING_MESSAGE);
 				
-				preencherTabela(cadFilme);				
+				preencherTabela();				
 				limparComponentes ();
 				btn_cadastro.setText("Cadastrar");
 				edit = false;
@@ -385,18 +399,26 @@ public class FilmeCadastro extends JInternalFrame {
 					
 					String palavra = txf_titulo.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
-					Filme novoFilme = new Filme(palavra, cadGenero.get(cbx_genero.getSelectedIndex()), Integer.parseInt(txf_copias.getText()) );
+					
+					//filmeDao.inserir(palavra, genero, copias, sinopse, duracao, lancamento, imagem, categoria);
+					
+					Filme novoFilme = new Filme();
+					novoFilme.setTitulo(palavra);
+					novoFilme.setGenero(cadGenero.get(cbx_genero.getSelectedIndex()));
+					novoFilme.setCopias(Integer.parseInt(txf_copias.getText()));
+					
 					novoFilme.setDuracao(txf_duracao.getText());
 					novoFilme.setLancamento(txf_lancamento.getText());
 					novoFilme.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
 					novoFilme.setImagem(lbl_mostrar_imagem.getIcon());
 					novoFilme.setSinopse(txa_sinopse.getText());
-					cadFilme.add(novoFilme);
+					filmeDao.inserir(novoFilme);
+					//cadFilme.add(novoFilme);
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
 					limparComponentes();
 				}
 				
-				preencherTabela(cadFilme);				
+				preencherTabela();				
 			}
 		});
 				
@@ -421,8 +443,9 @@ public class FilmeCadastro extends JInternalFrame {
 		txa_sinopse.setText("");
 	}
 	
-	private void preencherTabela (ArrayList<Filme> cadFilme) {
+	private void preencherTabela () {
 		
+		cadFilme = filmeDao.readAll();
 		tbl_modelo.setNumRows(0);
 		cadFilme.sort(Comparator.comparing(Filme::getLancamento));
 		for (Filme f : cadFilme) { tbl_modelo.addRow(new Object[]{f.getId(), f.getTitulo(), f.getGenero().getNome(), f.getDuracao(), f.getLancamento()});	}

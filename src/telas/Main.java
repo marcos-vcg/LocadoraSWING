@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -83,10 +82,12 @@ class Main {
 			Categoria.setContador(contCategoria+1);
 			*/
 			
+			/*
 			filmes = (ArrayList<Filme>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes");
 			int contFilme = 0;
 			for(Filme f: filmes) { if(f.getId() > contFilme) contFilme = f.getId();	}
 			Filme.setContador(contFilme+1);
+			*/
 			
 			clientes = (ArrayList<Cliente>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes");
 			int contCliente = 0;
@@ -145,7 +146,7 @@ class Main {
 		final JDesktopPane jdpFilme = new JDesktopPane();
 		i3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				FilmeCadastro filmeFrame = new FilmeCadastro(filmes, generos, categorias);
+				FilmeCadastro filmeFrame = new FilmeCadastro();
 				jdpFilme.add(filmeFrame);
 				filmeFrame.setVisible(true);
 				f.setContentPane(jdpFilme);
@@ -211,7 +212,7 @@ class Main {
 				try {
 					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos", generos);
 					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias", categorias);
-					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes", filmes);
+					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes", filmes);
 					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes", clientes); 
 		        } catch (java.io.FileNotFoundException ex){
 				} catch (Exception ex) {
