@@ -54,11 +54,13 @@ class Main {
 		
 		//categorias = new ArrayList<String>(Arrays.asList (new String[]{"", "Lançamento", "Padrão", "Antigo"}));
 		categorias = new ArrayList<Categoria>();
+		/*
 		categorias.add(new Categoria("", ""));
 		categorias.add(new Categoria("Lançamento", "10,00"));
 		categorias.add(new Categoria("Atual", "7,50"));
 		categorias.add(new Categoria("Intermediário", "5,00"));
 		categorias.add(new Categoria("Antigo", "2,50"));
+		*/
 		
 		
 		filmes = new ArrayList<Filme>();
@@ -74,10 +76,12 @@ class Main {
 			Genero.setContador(contGenero+1);
 			*/
 			
+			/*
 			categorias = (ArrayList<Categoria>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias");
 			int contCategoria = 0;
 			for(Categoria c: categorias) { if(c.getId() > contCategoria) contCategoria = c.getId();	}
 			Categoria.setContador(contCategoria+1);
+			*/
 			
 			filmes = (ArrayList<Filme>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes");
 			int contFilme = 0;
@@ -206,7 +210,7 @@ class Main {
 				//serializa
 				try {
 					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos", generos);
-					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias", categorias);
+					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias", categorias);
 					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes", filmes);
 					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes", clientes); 
 		        } catch (java.io.FileNotFoundException ex){

@@ -105,11 +105,6 @@ public class GeneroCadastro extends JInternalFrame {
 		tbl_generos.getColumnModel().getColumn(0).setPreferredWidth(20);
 		tbl_generos.getColumnModel().getColumn(1).setPreferredWidth(100);
 		
-		// Monta Tabela
-		tbl_modelo.setNumRows(0);
-		cadGenero.sort(Comparator.comparing(Genero::getNome));
-		for (Genero genero : cadGenero) {tbl_modelo.addRow(new Object[]{genero.getId(), genero.getNome()});}
-		
 		
 		// Botões de Ação
 		btn_editar = new JButton("Editar");
@@ -157,15 +152,12 @@ public class GeneroCadastro extends JInternalFrame {
 		// Ações dos Botões
 		btn_pesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				// Remonta Tabela
-				tbl_modelo.setNumRows(0);
+
 				if(txf_genero_pesquisa.getText().contentEquals("")) {
-					for (Genero genero : cadGenero) {
-						tbl_modelo.addRow(new Object[]{genero.getId(), genero.getNome()});
-					}
+					preencherTabela();
 				} else {
 					// Filtra a Tabela
+					tbl_modelo.setNumRows(0);
 					for (Genero genero : cadGenero) {
 						if(genero.getNome().toLowerCase().contains(txf_genero_pesquisa.getText().toLowerCase())) {
 							tbl_modelo.addRow(new Object[]{genero.getId(), genero.getNome()});	} 
@@ -212,24 +204,26 @@ public class GeneroCadastro extends JInternalFrame {
 		btn_cadastro.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {	
 				
-				if(txf_novo_genero.getText().contentEquals("") ) {
+				String palavra = txf_novo_genero.getText();
+				
+				if(palavra.contentEquals("") ) {
+					
 					JOptionPane.showMessageDialog(null, "Campos Obrigatórios Vazios!", "Ação Cancelada!", JOptionPane.WARNING_MESSAGE);
-					limparComponentes();
+					
 				} else if (edit) {
-					String palavra = txf_novo_genero.getText();
+					
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					generoDao.editarGenero(idSelected, palavra);
-					//for(int i = 0; i < cadGenero.size(); i++) { if (cadGenero.get(i).getId() == idSelected) {cadGenero.get(i).setNome(palavra);}  }
 					JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 						
 				} else {
-					String palavra = txf_novo_genero.getText();
+
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					generoDao.inserirGenero(palavra);
-					//cadGenero.add(new Genero(palavra));
-					
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
+				
 				}
+				
 				limparComponentes();
 				preencherTabela();
 			}
