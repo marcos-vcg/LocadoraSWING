@@ -23,7 +23,7 @@ public class FilmeDAO {
 	
 	public ArrayList<Filme> readAll(){
 		try {
-			String SQL = "SELECT * FROM " + tabela + " f LEFT JOIN genero g ON f.id = g.id ORDER BY nome";
+			String SQL = "SELECT * FROM " + tabela + "  ORDER BY titulo";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ResultSet rs = ps.executeQuery();
 			
@@ -39,7 +39,7 @@ public class FilmeDAO {
 				filme.setDuracao(rs.getString("duracao"));
 				filme.setLancamento(rs.getString("lancamento"));
 				filme.setImagem((Icon)rs.getBinaryStream("imagem"));
-				filme.setImagem((Icon)rs.getObject("imagem"));
+				//filme.setImagem((Icon)rs.getObject("imagem"));
 				filme.setCategoria(categoriaDao.busca(rs.getInt("categoria")));
 				
 		
@@ -56,25 +56,13 @@ public class FilmeDAO {
 		return null;
 	}
 	
-	public void inser(String titulo, Genero genero, Integer copias, String sinopse, String duracao, String lancamento, Icon imagem, Categoria categoria) {
 	
-		try {
-			
-			String SQL = "INSERT INTO " + tabela + " VALUES ('default',  '" + titulo + "', '" + genero.getId() + "', '" + copias + "', '" + sinopse + "', '" + duracao + "', '" + lancamento + "', '" + imagem + "', '" + categoria.getId() + "');";
-			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
-			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
-			ps.close();
-			
-		} catch (Exception e) {
-			System.out.println("Erro: " + e.getMessage());
-		}
-	}
 	
 	public void inserir(Filme f) {
 		
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " VALUES ( DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + f.getImagem() + "', '" + f.getCategoria().getId() + "');";
+			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + f.getImagem() + "', '" + f.getCategoria().getId() + "');";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();

@@ -400,20 +400,18 @@ public class FilmeCadastro extends JInternalFrame {
 					String palavra = txf_titulo.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
-					//filmeDao.inserir(palavra, genero, copias, sinopse, duracao, lancamento, imagem, categoria);
 					
 					Filme novoFilme = new Filme();
 					novoFilme.setTitulo(palavra);
 					novoFilme.setGenero(cadGenero.get(cbx_genero.getSelectedIndex()));
 					novoFilme.setCopias(Integer.parseInt(txf_copias.getText()));
-					
 					novoFilme.setDuracao(txf_duracao.getText());
 					novoFilme.setLancamento(txf_lancamento.getText());
 					novoFilme.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
 					novoFilme.setImagem(lbl_mostrar_imagem.getIcon());
 					novoFilme.setSinopse(txa_sinopse.getText());
 					filmeDao.inserir(novoFilme);
-					//cadFilme.add(novoFilme);
+				
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
 					limparComponentes();
 				}
