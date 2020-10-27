@@ -1,5 +1,11 @@
 package dao;
 
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,23 +14,61 @@ import model.Categoria;
 import model.Filme;
 import model.Genero;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 
 public class FilmeDAO {
-	private DataSource datasource;
+	private DataSource dataSource;
 	private String tabela;
 	private GeneroDAO generoDao;
 	private CategoriaDAO categoriaDao;
 	
 	public FilmeDAO(DataSource datasource){
-		this.datasource = datasource;
+		this.dataSource = datasource;
 		this.tabela = "filme";
+		generoDao = new GeneroDAO(dataSource);
+		categoriaDao = new CategoriaDAO(dataSource);
 	}
+	
+	
+	public Filme busca(Integer id){
+		try {
+			String SQL = "SELECT * FROM " + tabela + " WHERE id = '" + id + "';";
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
+			ResultSet rs = ps.executeQuery();
+			
+			Filme filme = new Filme();
+			
+			while(rs.next()) {
+				
+				filme.setId(rs.getInt("id"));
+				filme.setTitulo(rs.getString("titulo"));
+				filme.setGenero(generoDao.busca(rs.getInt("genero")));
+				filme.setCopias(rs.getInt("copias"));
+				filme.setSinopse(rs.getString("sinopse"));
+				filme.setDuracao(rs.getString("duracao"));
+				filme.setLancamento(rs.getString("lancamento"));
+				filme.setImagem(byteToImage(rs.getBytes("imagem")));
+				filme.setCategoria(categoriaDao.busca(rs.getInt("categoria")));
+				System.out.println("Filme lido");
+				
+			}
+			ps.close();
+			return filme;
+			
+		} catch(SQLException ex) {
+			System.err.println("Erro ao Recuperar filme " + ex.getMessage());
+		} catch(Exception ex) {
+			System.err.println("Erro Geral " + ex.getMessage());
+		}
+		return null;
+	}
+	
 	
 	public ArrayList<Filme> readAll(){
 		try {
-			String SQL = "SELECT * FROM " + tabela + "  ORDER BY titulo";
-			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			String SQL = "SELECT * FROM " + tabela + "  ORDER BY titulo;";
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ResultSet rs = ps.executeQuery();
 			
 			ArrayList<Filme> lista = new ArrayList<Filme>();
@@ -38,18 +82,24 @@ public class FilmeDAO {
 				filme.setSinopse(rs.getString("sinopse"));
 				filme.setDuracao(rs.getString("duracao"));
 				filme.setLancamento(rs.getString("lancamento"));
-				filme.setImagem((Icon)rs.getBinaryStream("imagem"));
+				filme.setImagem(byteToImage(rs.getBytes("imagem")));
+				//filme.setImagem(rs.getBlob("imagem"));
+				//filme.setImagem(rs.getBlob("imagem").getBinaryStream());
+				//filme.setImagem((Icon)rs.getBinaryStream("imagem"));
 				//filme.setImagem((Icon)rs.getObject("imagem"));
 				filme.setCategoria(categoriaDao.busca(rs.getInt("categoria")));
+				System.out.println("Filme lido");
 				
-		
-				lista.add(filme);
+				if(filme.getId() != null ) {
+					lista.add(filme);
+				}
+				
 			}
 			ps.close();
 			return lista;
 			
 		} catch(SQLException ex) {
-			System.err.println("Erro ao Recuperar " + ex.getMessage());
+			System.err.println("Erro ao Recuperar filme " + ex.getMessage());
 		} catch(Exception ex) {
 			System.err.println("Erro Geral " + ex.getMessage());
 		}
@@ -62,8 +112,8 @@ public class FilmeDAO {
 		
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + f.getImagem() + "', '" + f.getCategoria().getId() + "');";
-			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + imageToByte((Image) f.getImagem()) + "', '" + f.getCategoria().getId() + "');";
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
@@ -75,8 +125,8 @@ public class FilmeDAO {
 	public void editar(Integer id, String titulo, Genero genero, Integer copias, String sinopse, String duracao, String lancamento, Icon imagem, Categoria categoria) {
 		try {
 			
-			String SQL = "UPDATE " + tabela + " SET titulo = '" + titulo + "', genero = '" + genero + "', copias = '" + copias + "', sinopse = '" + sinopse + "', duracao = '" + duracao + "', lancamento = '" + lancamento + "', imagem = '" + imagem + "', categoria = '" + categoria + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
-			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			String SQL = "UPDATE " + tabela + " SET titulo = '" + titulo + "', genero = '" + genero + "', copias = '" + copias + "', sinopse = '" + sinopse + "', duracao = '" + duracao + "', lancamento = '" + lancamento + "', imagem = '" + imageToByte((Image) imagem) + "', categoria = '" + categoria + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();
 			
@@ -89,7 +139,7 @@ public class FilmeDAO {
 		try {
 			
 			String SQL = "DELETE FROM " + tabela + " WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
-			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);												// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
@@ -97,4 +147,33 @@ public class FilmeDAO {
 			System.out.println("Erro: " + e.getMessage());
 		}
 	}
+	
+	
+	
+	public byte[] imageToByte(Image image) {	
+		
+		BufferedImage bi = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
+		Graphics bg = bi.getGraphics();
+		bg.drawImage(image, 0, 0, null);
+		bg.dispose();
+		
+		ByteArrayOutputStream buff = new ByteArrayOutputStream();		
+	    try {  
+	    	ImageIO.write(bi, "JPG", buff);  
+	    } catch (IOException e) {  
+	    	e.printStackTrace();  
+	    }  
+	    return buff.toByteArray();		
+	}
+	
+	
+	
+	public static Image byteToImage(byte[] bytes) {
+		if(bytes == null) {
+			return null;
+		}else {
+			return Toolkit.getDefaultToolkit().createImage(bytes);
+		}
+	}
+	
 }

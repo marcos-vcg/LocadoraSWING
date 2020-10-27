@@ -1,13 +1,25 @@
 package telas;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import javax.imageio.ImageIO;
+import javax.management.openmbean.OpenDataException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -59,8 +71,12 @@ public class FilmeCadastro extends JInternalFrame {
 	JTable tbl_filmes;
 	JScrollPane scp_filmes, scrl_sinopse;
 	JComboBox<String> cbx_genero, cbx_categoria;
-	JLabel lbl_mostrar_imagem;
 	JTextArea txa_sinopse;
+	
+	JLabel lbl_mostrar_imagem;
+	
+	Image img;
+	ImageIcon imgIcon;
 	
 		
 	public FilmeCadastro() {
@@ -88,7 +104,6 @@ public class FilmeCadastro extends JInternalFrame {
 		// Controlador do Acesso ao Banco de Dados
 		dataSource = new DataSource();
 		
-		generoDao = new GeneroDAO(dataSource);
 		filmeDao = new FilmeDAO(dataSource);
 		generoDao = new GeneroDAO(dataSource);
 		categoriaDao = new CategoriaDAO(dataSource);
@@ -217,7 +232,6 @@ public class FilmeCadastro extends JInternalFrame {
 		pnl_cadastro.add(btn_cadastro).setBounds(424, 238, 100, 23);
 		
 		
-		
 				
 	}
 
@@ -237,7 +251,7 @@ public class FilmeCadastro extends JInternalFrame {
 		
 		btn_upload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+								
 				JFileChooser fc_upload = new JFileChooser();
 				fc_upload.setDialogTitle("Procurar aquivo");
 				fc_upload.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -245,15 +259,25 @@ public class FilmeCadastro extends JInternalFrame {
 				fc_upload.setFileFilter(filter);
 				fc_upload.showOpenDialog(getParent());
 				
+				File imagem = fc_upload.getSelectedFile();
+				
 				// Import ImageIcon   
-				if(fc_upload.getSelectedFile() != null) {
-					ImageIcon iconLogo = new ImageIcon(fc_upload.getSelectedFile().getPath());
+				if(imagem != null) {
+					ImageIcon iconLogo = new ImageIcon(imagem.getPath());
 					// lbl_mostrar_imagem.setIcon(iconLogo);  //  Mostra a imagem cortada de acordo com o tamanho destino. 
-					// Mostra Imagem Redimensionada
-					lbl_mostrar_imagem.setIcon(new ImageIcon(iconLogo.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT)));
-					txf_imagem.setText(fc_upload.getSelectedFile().getAbsolutePath());  	 // Mostra no campo de texto o caminho 
-				}  
 					
+					// Imagem Redimensionada
+					imgIcon = new ImageIcon(iconLogo.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+					lbl_mostrar_imagem.setIcon(imgIcon);
+					
+					img = imgIcon.getImage();
+					 
+					txf_imagem.setText(imagem.getAbsolutePath());  	 // Mostra no campo de texto o caminho 
+				
+				} 
+				
+				
+				
 				
 
 				// Outra forma  
@@ -309,7 +333,10 @@ public class FilmeCadastro extends JInternalFrame {
 		btn_editar.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				
+				
 				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_filmes.getSelectedRow(), 0);
+				/*
 				for(int i = 0; i < cadFilme.size(); i++) { 
 					if (cadFilme.get(i).getId() == idSelected) {
 						txf_titulo.setText(cadFilme.get(i).getTitulo());
@@ -319,10 +346,22 @@ public class FilmeCadastro extends JInternalFrame {
 						txf_lancamento.setText(cadFilme.get(i).getLancamento());
 						cbx_categoria.setSelectedItem(cadFilme.get(i).getCategoria().getNome());
 						//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
-						lbl_mostrar_imagem.setIcon(cadFilme.get(i).getImagem());
+						lbl_mostrar_imagem.setIcon((Icon)cadFilme.get(i).getImagem());
 						txa_sinopse.setText(cadFilme.get(i).getSinopse());
 					}  
-				}
+				}*/
+				
+				Filme filme = filmeDao.busca(idSelected);
+				txf_titulo.setText(filme.getTitulo());
+				cbx_genero.setSelectedItem(filme.getGenero().getNome());
+				txf_copias.setText(filme.getCopias().toString());
+				txf_duracao.setText(filme.getDuracao());
+				txf_lancamento.setText(filme.getLancamento());
+				cbx_categoria.setSelectedItem(filme.getCategoria().getNome());
+				//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
+				lbl_mostrar_imagem.setIcon((Icon) filme.getImagem());
+				txa_sinopse.setText(filme.getSinopse());
+				
 				
 				abas.setSelectedIndex(1);
 				btn_cadastro.setText("Editar");
@@ -384,7 +423,9 @@ public class FilmeCadastro extends JInternalFrame {
 							cadFilme.get(i).setDuracao(txf_duracao.getText());
 							cadFilme.get(i).setLancamento(txf_lancamento.getText());
 							cadFilme.get(i).setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-							cadFilme.get(i).setImagem(lbl_mostrar_imagem.getIcon());
+							
+							cadFilme.get(i).setImagem(img);
+							//cadFilme.get(i).setImagem(lbl_mostrar_imagem.getIcon());
 							cadFilme.get(i).setSinopse(txa_sinopse.getText());
 							
 						}  
@@ -408,7 +449,9 @@ public class FilmeCadastro extends JInternalFrame {
 					novoFilme.setDuracao(txf_duracao.getText());
 					novoFilme.setLancamento(txf_lancamento.getText());
 					novoFilme.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-					novoFilme.setImagem(lbl_mostrar_imagem.getIcon());
+					novoFilme.setImagem(img);
+
+					//novoFilme.setImagem(lbl_mostrar_imagem.getIcon().getImage());
 					novoFilme.setSinopse(txa_sinopse.getText());
 					filmeDao.inserir(novoFilme);
 				
@@ -459,6 +502,112 @@ public class FilmeCadastro extends JInternalFrame {
 			dispose();
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	private File selecionarImagem() {
+		
+		JFileChooser fc_upload = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Imagens em JPEG & png", "jpg", "png");
+		fc_upload.addChoosableFileFilter(filter);
+		fc_upload.setAcceptAllFileFilterUsed(false);
+		fc_upload.setDialogType(JFileChooser.OPEN_DIALOG);
+		fc_upload.setCurrentDirectory(new File("/"));
+		fc_upload.showOpenDialog(this);
+		
+		return fc_upload.getSelectedFile();
+		
+	}
+	
+	/*
+	private byte[] getImagem() {
+		boolean isPng = false;
+		
+		if(imagem != null) {
+			isPng = imagem.getName().endsWith("png");
+			
+			try {
+				
+				BufferedImage image = ImageIO.read(imagem);
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				int type = BufferedImage.TYPE_INT_RGB;
+			
+				if(isPng) {
+					type = BufferedImage.BITMASK;
+				}
+				
+				BufferedImage novaImagem = new BufferedImage(lbl_mostrar_imagem.getWidth() - 5, lbl_mostrar_imagem.getHeight() - 10 , type);
+				Graphics2D g = novaImagem.createGraphics();
+				g.setComposite(AlphaComposite.Src);
+				g.drawImage(image, 0, 0, lbl_mostrar_imagem.getWidth() -5, lbl_mostrar_imagem.getHeight() -10, null);
+				
+				if(isPng) {
+					ImageIO.write(novaImagem, "png", out);
+				} else {
+					ImageIO.write(novaImagem, "jpg", out);
+				}
+				
+				out.flush();
+				byte[] byteArray = out.toByteArray();		//Converteu o out para o vetor de bytes
+				
+				return byteArray;
+				
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			
+			
+			
+		}
+		return null;
+	}
+	
+	
+	
+	
+	public Image pegarImagem () {
+		if(imagem != null) {
+			ImageIcon iconLogo = new ImageIcon(imagem.getPath());
+			Image img = iconLogo.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT);
+		
+			//byteArray = getImagem();
+			return img;
+		}  
+		return null;
+	}
+	*/
+	
+	
+	public byte[] imageToByte(Image image) {	
+		
+		BufferedImage bi = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
+		Graphics bg = bi.getGraphics();
+		bg.drawImage(image, 0, 0, null);
+		bg.dispose();
+		
+		ByteArrayOutputStream buff = new ByteArrayOutputStream();		
+	    try {  
+	    	ImageIO.write(bi, "JPG", buff);  
+	    } catch (IOException e) {  
+	    	e.printStackTrace();  
+	    }  
+	    return buff.toByteArray();		
+	}
+	
+	
+	
+	public static Image byteToImage(byte[] bytes) {
+		if(bytes == null) {
+			return null;
+		}else {
+			return Toolkit.getDefaultToolkit().createImage(bytes);
+		}
+	}
+	
 	
 	
 	

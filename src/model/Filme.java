@@ -1,6 +1,8 @@
 package model;
 
+import java.awt.Image;
 import java.io.Serializable;
+import java.sql.Blob;
 
 import javax.swing.Icon;
 
@@ -17,7 +19,7 @@ public class Filme implements Serializable{
 	private String sinopse;
 	private String duracao;
 	private String lancamento;
-	private Icon imagem;
+	private Image imagem;
 	private Categoria categoria;
 
 
@@ -79,11 +81,11 @@ public class Filme implements Serializable{
 		this.lancamento = lancamento;
 	}
 
-	public Icon getImagem() {
+	public Image getImagem() {
 		return imagem;
 	}
 
-	public void setImagem(Icon imagem) {
+	public void setImagem(Image imagem) {
 		this.imagem = imagem;
 	}
 

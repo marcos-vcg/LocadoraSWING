@@ -15,22 +15,24 @@ public class CategoriaDAO {
 		this.tabela = "categoria";
 	}
 	
-	public Categoria busca(Integer id) {
+	public Categoria busca(int id) {
 		try {
 			String SQL = "SELECT * FROM " + tabela + " WHERE id = '" + id + "'";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ResultSet rs = ps.executeQuery();
 			
 			Categoria categoria = new Categoria();
-			categoria.setId(rs.getInt("id"));
-			categoria.setNome(rs.getString("nome"));
-			categoria.setPreco(rs.getString("preco"));
-		
+			while(rs.next()) {
+				categoria.setId(rs.getInt("id"));
+				categoria.setNome(rs.getString("nome"));
+				categoria.setPreco(rs.getString("preco"));
+			}
+			
 			ps.close();
 			return categoria;
 			
 		} catch(SQLException ex) {
-			System.err.println("Erro ao Recuperar " + ex.getMessage());
+			System.err.println("Erro ao Recuperar categoria " + ex.getMessage());
 		} catch(Exception ex) {
 			System.err.println("Erro Geral " + ex.getMessage());
 		}
