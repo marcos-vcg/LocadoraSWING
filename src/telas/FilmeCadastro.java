@@ -1,25 +1,18 @@
 package telas;
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Blob;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 
 import javax.imageio.ImageIO;
-import javax.management.openmbean.OpenDataException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -74,9 +67,8 @@ public class FilmeCadastro extends JInternalFrame {
 	JTextArea txa_sinopse;
 	
 	JLabel lbl_mostrar_imagem;
+	Image image;
 	
-	Image img;
-	ImageIcon imgIcon;
 	
 		
 	public FilmeCadastro() {
@@ -252,52 +244,7 @@ public class FilmeCadastro extends JInternalFrame {
 		btn_upload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 								
-				JFileChooser fc_upload = new JFileChooser();
-				fc_upload.setDialogTitle("Procurar aquivo");
-				fc_upload.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif");
-				fc_upload.setFileFilter(filter);
-				fc_upload.showOpenDialog(getParent());
-				
-				File imagem = fc_upload.getSelectedFile();
-				
-				// Import ImageIcon   
-				if(imagem != null) {
-					ImageIcon iconLogo = new ImageIcon(imagem.getPath());
-					// lbl_mostrar_imagem.setIcon(iconLogo);  //  Mostra a imagem cortada de acordo com o tamanho destino. 
-					
-					// Imagem Redimensionada
-					imgIcon = new ImageIcon(iconLogo.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
-					lbl_mostrar_imagem.setIcon(imgIcon);
-					
-					img = imgIcon.getImage();
-					 
-					txf_imagem.setText(imagem.getAbsolutePath());  	 // Mostra no campo de texto o caminho 
-				
-				} 
-				
-				
-				
-				
-
-				// Outra forma  
-				/*
-				int option = fc_upload.showOpenDialog(getParent());
-				if(option == JFileChooser.APPROVE_OPTION) {
-					File file = fc_upload.getSelectedFile();
-					txf_imagem.setText(file.getPath());
-					lbl_mostrar_imagem.setIcon(new ImageIcon(file.getPath()));	}     
-				*/
-				
-				
-				/*  // Teste copiar foto
-				File arquivo = fc_upload.getSelectedFile();
-				FileInputStream origem = new FileInputStream(arquivo.getPath());
-				FileOutputStream destino = new FileOutputStream(Path+arquivo.getName());           		         	          		
-            	IOUtils.copy(origem,destino);
-            	*/
-				
-				
+				image = CarregarImagem();
 			}		
 		});  
 		
@@ -332,24 +279,8 @@ public class FilmeCadastro extends JInternalFrame {
 		
 		btn_editar.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				
+
 				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_filmes.getSelectedRow(), 0);
-				/*
-				for(int i = 0; i < cadFilme.size(); i++) { 
-					if (cadFilme.get(i).getId() == idSelected) {
-						txf_titulo.setText(cadFilme.get(i).getTitulo());
-						cbx_genero.setSelectedItem(cadFilme.get(i).getGenero().getNome());
-						txf_copias.setText(cadFilme.get(i).getCopias().toString());
-						txf_duracao.setText(cadFilme.get(i).getDuracao());
-						txf_lancamento.setText(cadFilme.get(i).getLancamento());
-						cbx_categoria.setSelectedItem(cadFilme.get(i).getCategoria().getNome());
-						//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
-						lbl_mostrar_imagem.setIcon((Icon)cadFilme.get(i).getImagem());
-						txa_sinopse.setText(cadFilme.get(i).getSinopse());
-					}  
-				}*/
 				
 				Filme filme = filmeDao.busca(idSelected);
 				txf_titulo.setText(filme.getTitulo());
@@ -358,11 +289,13 @@ public class FilmeCadastro extends JInternalFrame {
 				txf_duracao.setText(filme.getDuracao());
 				txf_lancamento.setText(filme.getLancamento());
 				cbx_categoria.setSelectedItem(filme.getCategoria().getNome());
-				//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
-				lbl_mostrar_imagem.setIcon((Icon) filme.getImagem());
 				txa_sinopse.setText(filme.getSinopse());
+				//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
 				
-				
+				image = filme.getImagem();
+				lbl_mostrar_imagem.setIcon(GerarIcone(image));
+			
+
 				abas.setSelectedIndex(1);
 				btn_cadastro.setText("Editar");
 				edit = true;
@@ -373,14 +306,12 @@ public class FilmeCadastro extends JInternalFrame {
 		btn_excluir.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 
-				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_filmes.getSelectedRow(), 0);
-				for(int i = 0; i < cadFilme.size(); i++) { if (cadFilme.get(i).getId() == idSelected) {cadFilme.remove(i);}  }
+				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_filmes.getSelectedRow(), 0);				
+				filmeDao.apagar(idSelected);
 				JOptionPane.showMessageDialog(null, "Exclusão efetuada com sucesso!", "Exclusão Efetuada!", JOptionPane.WARNING_MESSAGE);
 				
 				preencherTabela();				
 				limparComponentes ();
-				btn_cadastro.setText("Cadastrar");
-				edit = false;
 			}
 		});		  
 
@@ -390,8 +321,6 @@ public class FilmeCadastro extends JInternalFrame {
 				
 				limparComponentes ();
 				abas.setSelectedIndex(1);
-				btn_cadastro.setText("Cadastrar");
-				edit = false;
 			}
 		});
 		
@@ -414,64 +343,53 @@ public class FilmeCadastro extends JInternalFrame {
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
 					Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_filmes.getSelectedRow(), 0);
-					for(int i = 0; i < cadFilme.size(); i++) { 
-						if (cadFilme.get(i).getId() == idSelected) {
-							
-							cadFilme.get(i).setTitulo(palavra); 
-							cadFilme.get(i).setGenero(cadGenero.get(cbx_genero.getSelectedIndex()));
-							cadFilme.get(i).setCopias(Integer.parseInt(txf_copias.getText()));
-							cadFilme.get(i).setDuracao(txf_duracao.getText());
-							cadFilme.get(i).setLancamento(txf_lancamento.getText());
-							cadFilme.get(i).setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-							
-							cadFilme.get(i).setImagem(img);
-							//cadFilme.get(i).setImagem(lbl_mostrar_imagem.getIcon());
-							cadFilme.get(i).setSinopse(txa_sinopse.getText());
-							
-						}  
-					}
 					
+					Filme editar = filmeDao.busca(idSelected);
+					editar.setTitulo(palavra); 
+					editar.setGenero(cadGenero.get(cbx_genero.getSelectedIndex()));
+					editar.setCopias(Integer.parseInt(txf_copias.getText()));
+					editar.setDuracao(txf_duracao.getText());
+					editar.setLancamento(txf_lancamento.getText());
+					editar.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
+					if(image != null) editar.setImagem(image);
+					editar.setSinopse(txa_sinopse.getText());
+					
+					filmeDao.editar(editar);
 					JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
-					limparComponentes();
-					abas.setSelectedIndex(0);
-					btn_cadastro.setText("Cadastrar");
-					edit = false;
+				
 				} else {
 					
 					String palavra = txf_titulo.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
 					
-					Filme novoFilme = new Filme();
-					novoFilme.setTitulo(palavra);
-					novoFilme.setGenero(cadGenero.get(cbx_genero.getSelectedIndex()));
-					novoFilme.setCopias(Integer.parseInt(txf_copias.getText()));
-					novoFilme.setDuracao(txf_duracao.getText());
-					novoFilme.setLancamento(txf_lancamento.getText());
-					novoFilme.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-					novoFilme.setImagem(img);
-
-					//novoFilme.setImagem(lbl_mostrar_imagem.getIcon().getImage());
-					novoFilme.setSinopse(txa_sinopse.getText());
-					filmeDao.inserir(novoFilme);
-				
+					Filme novo = new Filme();
+					novo.setTitulo(palavra);
+					novo.setGenero(cadGenero.get(cbx_genero.getSelectedIndex()));
+					novo.setCopias(Integer.parseInt(txf_copias.getText()));
+					novo.setDuracao(txf_duracao.getText());
+					novo.setLancamento(txf_lancamento.getText());
+					novo.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
+					if(novo != null) novo.setImagem(image);
+					//novo.setImagem(lbl_mostrar_imagem.getIcon().getImage());
+					novo.setSinopse(txa_sinopse.getText());
+					
+					filmeDao.inserir(novo);
 					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
-					limparComponentes();
+					
 				}
-				
+				limparComponentes();
 				preencherTabela();				
 			}
-		});
-				
-		
-		
-		
-		
+		});	
 		
 	}
 	
+	// Funções
 	
 	private void limparComponentes () {
+		
+		
 		
 		txf_titulo.setText("");
 		cbx_genero.setSelectedIndex(0);
@@ -482,6 +400,10 @@ public class FilmeCadastro extends JInternalFrame {
 		txf_imagem.setText("");
 		lbl_mostrar_imagem.setIcon(null);
 		txa_sinopse.setText("");
+		setarImagemPadrao();
+		abas.setSelectedIndex(0);
+		btn_cadastro.setText("Cadastrar");
+		edit = false;
 	}
 	
 	private void preencherTabela () {
@@ -504,10 +426,85 @@ public class FilmeCadastro extends JInternalFrame {
 	}
 	
 	
+	public Image CarregarImagem() {
+		
+		JFileChooser fc_upload = new JFileChooser();
+		fc_upload.setDialogTitle("Procurar aquivo");
+		fc_upload.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif");
+		fc_upload.setFileFilter(filter);
+		fc_upload.showOpenDialog(getParent());
+		
+		File arquivo = fc_upload.getSelectedFile();
+		
+		// Import ImageIcon   
+		if(arquivo != null) {
+			
+			InputStream stream;
+			Image image;
+			ImageIcon icon;
+			 
+			try {
+			
+				stream = new FileInputStream(arquivo.getPath());
+				image = ImageIO.read(stream);
+				icon = GerarIcone(image);
+				lbl_mostrar_imagem.setIcon(icon);
+				
+				return image;
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			
+			
+			/*
+			ImageIcon imgIcon = new ImageIcon(arquivo.getPath());
+			// lbl_mostrar_imagem.setIcon(iconLogo);  //  Mostra a imagem cortada de acordo com o tamanho destino. 
+			
+			// Imagem Redimensionada
+			ImageIcon imgIconRedimensionada = new ImageIcon(imgIcon.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+			lbl_mostrar_imagem.setIcon(imgIconRedimensionada);
+
+			txf_imagem.setText(arquivo.getAbsolutePath());  	 // Mostra no campo de texto o caminho 	
+			
+			return imgIconRedimensionada.getImage();
+			*/
+			
+			
+			
+			
+		} 
+		
+		return null;
+	}
+	
+	
+	public ImageIcon GerarIcone(Image image) {
+		//ImageIcon icon = new ImageIcon(image);   		// Imagem cortada
+		ImageIcon icon = new ImageIcon(image.getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+		
+		return icon;
+	}
+	
+	public void setarImagemPadrao() {
+		try {
+			
+			InputStream stream = new FileInputStream("../LocadoraSWING/src/util/teste_netflix.jpg");
+			image = ImageIO.read(stream);
+			ImageIcon icon = GerarIcone(image);
+			lbl_mostrar_imagem.setIcon(icon);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
 	
 	
+	/*
 	
 	private File selecionarImagem() {
 		
@@ -521,7 +518,10 @@ public class FilmeCadastro extends JInternalFrame {
 		
 		return fc_upload.getSelectedFile();
 		
-	}
+	}*/
+	
+	
+	
 	
 	/*
 	private byte[] getImagem() {
@@ -579,36 +579,9 @@ public class FilmeCadastro extends JInternalFrame {
 		}  
 		return null;
 	}
-	*/
+	*/	
 	
-	
-	public byte[] imageToByte(Image image) {	
-		
-		BufferedImage bi = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
-		Graphics bg = bi.getGraphics();
-		bg.drawImage(image, 0, 0, null);
-		bg.dispose();
-		
-		ByteArrayOutputStream buff = new ByteArrayOutputStream();		
-	    try {  
-	    	ImageIO.write(bi, "JPG", buff);  
-	    } catch (IOException e) {  
-	    	e.printStackTrace();  
-	    }  
-	    return buff.toByteArray();		
-	}
-	
-	
-	
-	public static Image byteToImage(byte[] bytes) {
-		if(bytes == null) {
-			return null;
-		}else {
-			return Toolkit.getDefaultToolkit().createImage(bytes);
-		}
-	}
-	
-	
+
 	
 	
 }

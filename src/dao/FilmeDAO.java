@@ -112,8 +112,9 @@ public class FilmeDAO {
 		
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + imageToByte((Image) f.getImagem()) + "', '" + f.getCategoria().getId() + "');";
+			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + imageToByte(f.getImagem()) + "', '" + f.getCategoria().getId() + "');";
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
+			
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
@@ -122,10 +123,10 @@ public class FilmeDAO {
 		}
 	}
 	
-	public void editar(Integer id, String titulo, Genero genero, Integer copias, String sinopse, String duracao, String lancamento, Icon imagem, Categoria categoria) {
+	public void editar(Filme f) {
 		try {
 			
-			String SQL = "UPDATE " + tabela + " SET titulo = '" + titulo + "', genero = '" + genero + "', copias = '" + copias + "', sinopse = '" + sinopse + "', duracao = '" + duracao + "', lancamento = '" + lancamento + "', imagem = '" + imageToByte((Image) imagem) + "', categoria = '" + categoria + "' WHERE id = " + id + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET titulo = '" + f.getTitulo() + "', genero = '" + f.getGenero() + "', copias = '" + f.getCopias() + "', sinopse = '" + f.getSinopse() + "', duracao = '" + f.getDuracao() + "', lancamento = '" + f.getLancamento() + "', imagem = '" + imageToByte(f.getImagem()) + "', categoria = '" + f.getCategoria() + "' WHERE id = " + f.getId() + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();
@@ -149,7 +150,7 @@ public class FilmeDAO {
 	}
 	
 	
-	
+	// Conversor de Imagem para Bytes para mandar para o Banco de Dados
 	public byte[] imageToByte(Image image) {	
 		
 		BufferedImage bi = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
