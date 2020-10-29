@@ -48,7 +48,7 @@ public class FilmeDAO {
 				filme.setSinopse(rs.getString("sinopse"));
 				filme.setDuracao(rs.getString("duracao"));
 				filme.setLancamento(rs.getString("lancamento"));
-				filme.setImagem(byteToImage(rs.getBytes("imagem")));
+				filme.setImagem(rs.getBytes("imagem"));
 				filme.setCategoria(categoriaDao.busca(rs.getInt("categoria")));
 				System.out.println("Filme lido");
 				
@@ -82,7 +82,7 @@ public class FilmeDAO {
 				filme.setSinopse(rs.getString("sinopse"));
 				filme.setDuracao(rs.getString("duracao"));
 				filme.setLancamento(rs.getString("lancamento"));
-				filme.setImagem(byteToImage(rs.getBytes("imagem")));
+				filme.setImagem(rs.getBytes("imagem"));
 				//filme.setImagem(rs.getBlob("imagem"));
 				//filme.setImagem(rs.getBlob("imagem").getBinaryStream());
 				//filme.setImagem((Icon)rs.getBinaryStream("imagem"));
@@ -109,12 +109,11 @@ public class FilmeDAO {
 	
 	
 	public void inserir(Filme f) {
-		
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + imageToByte(f.getImagem()) + "', '" + f.getCategoria().getId() + "');";
+			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + f.getImagem() + "', '" + f.getCategoria().getId() + "');";
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
-			
+
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
@@ -123,10 +122,42 @@ public class FilmeDAO {
 		}
 	}
 	
+	/*
+	public Boolean inserir(Filme f) {
+		
+		Boolean retorno = false;
+		
+		try {
+			
+			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?)";
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
+			
+			ps.setString(1, f.getTitulo());
+			ps.setInt(2, f.getGenero().getId());
+			ps.setInt(3, f.getCopias());
+			ps.setString(4, f.getSinopse());
+			ps.setString(5, f.getDuracao());
+			ps.setString(6, f.getLancamento());
+			ps.setBytes(7, f.getImagem());
+			ps.setInt(8, f.getCategoria().getId());
+			
+			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
+			ps.close();
+			
+			retorno = true;
+			
+		} catch (Exception e) {
+			System.out.println("Erro: " + e.getMessage());
+		}
+		
+		return retorno;
+	}*/
+	
+	
 	public void editar(Filme f) {
 		try {
 			
-			String SQL = "UPDATE " + tabela + " SET titulo = '" + f.getTitulo() + "', genero = '" + f.getGenero() + "', copias = '" + f.getCopias() + "', sinopse = '" + f.getSinopse() + "', duracao = '" + f.getDuracao() + "', lancamento = '" + f.getLancamento() + "', imagem = '" + imageToByte(f.getImagem()) + "', categoria = '" + f.getCategoria() + "' WHERE id = " + f.getId() + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET titulo = '" + f.getTitulo() + "', genero = '" + f.getGenero() + "', copias = '" + f.getCopias() + "', sinopse = '" + f.getSinopse() + "', duracao = '" + f.getDuracao() + "', lancamento = '" + f.getLancamento() + "', imagem = '" + f.getImagem() + "', categoria = '" + f.getCategoria() + "' WHERE id = " + f.getId() + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();

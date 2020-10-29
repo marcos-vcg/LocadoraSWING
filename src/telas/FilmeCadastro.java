@@ -3,6 +3,7 @@ package telas;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import dao.GeneroDAO;
 import model.Categoria;
 import model.Filme;
 import model.Genero;
+import util.ManipularImagem;
 
 
 @SuppressWarnings("serial")
@@ -58,7 +60,7 @@ public class FilmeCadastro extends JInternalFrame {
 	
 	JTabbedPane abas;
 	JPanel pnl_consulta, pnl_cadastro;
-	JTextField txf_titulo_pesquisa, txf_genero_pesquisa, txf_lancamento_pesquisa, txf_titulo, txf_copias, txf_duracao, txf_lancamento, txf_imagem;
+	JTextField txf_titulo_pesquisa, txf_genero_pesquisa, txf_lancamento_pesquisa, txf_titulo, txf_copias, txf_duracao, txf_lancamento;
 	JButton btn_pesquisar, btn_editar, btn_excluir, btn_novo,  btn_cancelar, btn_cadastro, btn_upload;
 	DefaultTableModel tbl_modelo;
 	JTable tbl_filmes;
@@ -67,8 +69,8 @@ public class FilmeCadastro extends JInternalFrame {
 	JTextArea txa_sinopse;
 	
 	JLabel lbl_mostrar_imagem;
-	Image image;
-	
+	//Image image;
+	BufferedImage imagem;
 	
 		
 	public FilmeCadastro() {
@@ -202,8 +204,6 @@ public class FilmeCadastro extends JInternalFrame {
 		pnl_cadastro.add(cbx_categoria).setBounds(250, 90, 98, 22);
 
 		pnl_cadastro.add(new JLabel("Imagem:")).setBounds(380, 65, 75, 14);
-		txf_imagem = new JTextField(5);
-		pnl_cadastro.add(txf_imagem).setBounds(380, 90, 135, 20);
 		lbl_mostrar_imagem = new JLabel("");
 		pnl_cadastro.add(lbl_mostrar_imagem).setBounds(405, 120, 90, 110);
 		btn_upload = new JButton("Upload");
@@ -244,7 +244,8 @@ public class FilmeCadastro extends JInternalFrame {
 		btn_upload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 								
-				image = CarregarImagem();
+				UploadFoto();
+				//image = CarregarImagem();
 			}		
 		});  
 		
@@ -291,9 +292,8 @@ public class FilmeCadastro extends JInternalFrame {
 				cbx_categoria.setSelectedItem(filme.getCategoria().getNome());
 				txa_sinopse.setText(filme.getSinopse());
 				//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
-				
-				image = filme.getImagem();
-				lbl_mostrar_imagem.setIcon(GerarIcone(image));
+				imagem = ManipularImagem.byteToBuffered(filme.getImagem());
+				lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
 			
 
 				abas.setSelectedIndex(1);
@@ -351,7 +351,7 @@ public class FilmeCadastro extends JInternalFrame {
 					editar.setDuracao(txf_duracao.getText());
 					editar.setLancamento(txf_lancamento.getText());
 					editar.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-					if(image != null) editar.setImagem(image);
+					editar.setImagem(ManipularImagem.bufferedToBytes(imagem));
 					editar.setSinopse(txa_sinopse.getText());
 					
 					filmeDao.editar(editar);
@@ -370,8 +370,7 @@ public class FilmeCadastro extends JInternalFrame {
 					novo.setDuracao(txf_duracao.getText());
 					novo.setLancamento(txf_lancamento.getText());
 					novo.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-					if(novo != null) novo.setImagem(image);
-					//novo.setImagem(lbl_mostrar_imagem.getIcon().getImage());
+					novo.setImagem(ManipularImagem.bufferedToBytes(imagem));
 					novo.setSinopse(txa_sinopse.getText());
 					
 					filmeDao.inserir(novo);
@@ -385,11 +384,11 @@ public class FilmeCadastro extends JInternalFrame {
 		
 	}
 	
+	
+	
 	// Funções
 	
 	private void limparComponentes () {
-		
-		
 		
 		txf_titulo.setText("");
 		cbx_genero.setSelectedIndex(0);
@@ -397,14 +396,14 @@ public class FilmeCadastro extends JInternalFrame {
 		txf_duracao.setText("");
 		txf_lancamento.setText("");
 		cbx_categoria.setSelectedIndex(0);
-		txf_imagem.setText("");
 		lbl_mostrar_imagem.setIcon(null);
-		txa_sinopse.setText("");
 		setarImagemPadrao();
+		txa_sinopse.setText("");
 		abas.setSelectedIndex(0);
 		btn_cadastro.setText("Cadastrar");
 		edit = false;
 	}
+	
 	
 	private void preencherTabela () {
 		
@@ -414,6 +413,7 @@ public class FilmeCadastro extends JInternalFrame {
 		for (Filme f : cadFilme) { tbl_modelo.addRow(new Object[]{f.getId(), f.getTitulo(), f.getGenero().getNome(), f.getDuracao(), f.getLancamento()});	}
 	}
 	
+	
 	private class SwingAction_cancelar extends AbstractAction {
 		public SwingAction_cancelar() {
 			putValue(NAME, "Cancelar");
@@ -421,11 +421,31 @@ public class FilmeCadastro extends JInternalFrame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			dispose();
+			//dispose();
+			limparComponentes();
 		}
 	}
 	
 	
+	// Funcao para escolher uma Foto e copiar para um BufferedImage
+	public void UploadFoto() {
+		JFileChooser fc_upload = new JFileChooser();
+		int resposta = fc_upload.showOpenDialog(null);
+		
+		if (resposta == JFileChooser.APPROVE_OPTION) {
+			File arquivo = fc_upload.getSelectedFile();
+			try {
+				imagem = ManipularImagem.getBufferedImage(arquivo.getAbsolutePath());
+				lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
+			}catch(Exception ex) {
+				System.out.println(ex.getStackTrace().toString());
+			}
+		}   // else {System.out.println("Voce não selecionou nenhum arquivo!");}
+	}
+	
+	
+	/*
+	// Metodo sendo substituido por UploadFoto();
 	public Image CarregarImagem() {
 		
 		JFileChooser fc_upload = new JFileChooser();
@@ -433,7 +453,7 @@ public class FilmeCadastro extends JInternalFrame {
 		fc_upload.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif");
 		fc_upload.setFileFilter(filter);
-		fc_upload.showOpenDialog(getParent());
+		fc_upload.showOpenDialog(getParent());  // pode ser null ou getParent()
 		
 		File arquivo = fc_upload.getSelectedFile();
 		
@@ -448,7 +468,7 @@ public class FilmeCadastro extends JInternalFrame {
 			
 				stream = new FileInputStream(arquivo.getPath());
 				image = ImageIO.read(stream);
-				icon = GerarIcone(image);
+				icon = GerarIcone(imagem);
 				lbl_mostrar_imagem.setIcon(icon);
 				
 				return image;
@@ -457,43 +477,31 @@ public class FilmeCadastro extends JInternalFrame {
 				e.printStackTrace();
 			}
 			
-			
-			
-			/*
-			ImageIcon imgIcon = new ImageIcon(arquivo.getPath());
-			// lbl_mostrar_imagem.setIcon(iconLogo);  //  Mostra a imagem cortada de acordo com o tamanho destino. 
-			
-			// Imagem Redimensionada
-			ImageIcon imgIconRedimensionada = new ImageIcon(imgIcon.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
-			lbl_mostrar_imagem.setIcon(imgIconRedimensionada);
-
-			txf_imagem.setText(arquivo.getAbsolutePath());  	 // Mostra no campo de texto o caminho 	
-			
-			return imgIconRedimensionada.getImage();
-			*/
-			
-			
-			
+	
 			
 		} 
 		
 		return null;
 	}
+	*/
 	
 	
-	public ImageIcon GerarIcone(Image image) {
+	// Gera o icone redimensionado ao label que será exibido
+	public ImageIcon GerarIcone(BufferedImage image) {
 		//ImageIcon icon = new ImageIcon(image);   		// Imagem cortada
-		ImageIcon icon = new ImageIcon(image.getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+		ImageIcon icone = new ImageIcon(image.getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
 		
-		return icon;
+		return icone;
 	}
 	
+	
+	// Seta a Imagem padrão atraves do metodo GerarIcone() sempre que limpar a tela para um novo cadastro
 	public void setarImagemPadrao() {
 		try {
 			
 			InputStream stream = new FileInputStream("../LocadoraSWING/src/util/teste_netflix.jpg");
-			image = ImageIO.read(stream);
-			ImageIcon icon = GerarIcone(image);
+			imagem = ImageIO.read(stream);
+			ImageIcon icon = GerarIcone(imagem);
 			lbl_mostrar_imagem.setIcon(icon);
 			
 		} catch (IOException e) {
