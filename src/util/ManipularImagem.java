@@ -1,6 +1,9 @@
 package util;
 
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 
 // Classe serve para manipular as imagens, redimensiona, transforma para BufferedImage e para array de Bytes para inserçao em BD.
@@ -76,7 +78,8 @@ public class ManipularImagem {
 		return novaImagem;
 	}
 	
-	// Método para apenas pegar a imagem e retornar um BufferedImage.
+	
+	// Pega uma imagem de um path do PC e retorna um BufferedImage.
 	public static BufferedImage getBufferedImage(String caminhoImg) {
 		Double novaImgLargura = null;
 		Double novaImgAltura = null;
@@ -104,19 +107,37 @@ public class ManipularImagem {
 	
 		return novaImagem;
 	}
+	
+	
+	
+	// função retorna bufferedImage de Path de File 	(Estou usando a getBufferedImage)	
+	public static BufferedImage fileToBuffered (String pathImg) {
 		
-			
+		BufferedImage img = null;
 		
+		try {
+			img = ImageIO.read(new File(pathImg));	
+		} catch(IOException ex) {
+			System.out.println(ex.getMessage());
+		}
+		return img;
+	}
+	
+	
+	
+	
+	
 	// Pega um BufferedImage e converte para um array de Bytes
 	public static byte[] bufferedToBytes(BufferedImage image) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(image, "JPEG", baos);
+			//baos.flush();
 		} catch (IOException ex) {
 			
 		}
 		
-		InputStream is = new ByteArrayInputStream(baos.toByteArray());
+		InputStream is = new ByteArrayInputStream(baos.toByteArray());  // não está sendo usado pra nada
 	
 		return baos.toByteArray();
 	}
@@ -124,22 +145,53 @@ public class ManipularImagem {
 		
 		
 	
-		// Recebe a imagem como array de bytes converte para BufferedImage
-		public static BufferedImage byteToBuffered(byte[] byteImg) {
-			BufferedImage buffImg = null;
-			
-			// verifica se tem a imagem, caso tenha converte para BufferedImage através do InputStream que é o formato reconhecido
-			if (byteImg != null) {
-				InputStream input = new ByteArrayInputStream(byteImg);
-				try {
-					buffImg = ImageIO.read(input);
-					
-				} catch (IOException ex) {}
-			} 
-			
-			return buffImg;
-		}
+	// Recebe a imagem como array de bytes converte para BufferedImage
+	public static BufferedImage byteToBuffered(byte[] byteImg) {
+		BufferedImage buffImg = null;
+		
+		// verifica se tem a imagem, caso tenha converte para BufferedImage através do InputStream que é o formato reconhecido
+		if (byteImg != null) {
+			InputStream input = new ByteArrayInputStream(byteImg);
+			try {
+				buffImg = ImageIO.read(input);
+				
+			} catch (IOException ex) {}
+		} 
+		
+		return buffImg;
+	}
 		
 	
+	
+	
+	
+	
+	
+	// Conversor de Image para Bytes
+	public byte[] imageToByte(Image image) {	
+		
+		BufferedImage bi = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
+		Graphics bg = bi.getGraphics();
+		bg.drawImage(image, 0, 0, null);
+		bg.dispose();
+		
+		ByteArrayOutputStream buff = new ByteArrayOutputStream();		
+	    try {  
+	    	ImageIO.write(bi, "JPG", buff);  
+	    } catch (IOException e) {  
+	    	e.printStackTrace();  
+	    }  
+	    return buff.toByteArray();		
+	}
+	
+	
+	
+	public static Image byteToImage(byte[] bytes) {
+		if(bytes == null) {
+			return null;
+		}else {
+			return Toolkit.getDefaultToolkit().createImage(bytes);
+		}
+	}
 	
 }

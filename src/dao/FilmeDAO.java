@@ -1,21 +1,10 @@
 package dao;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import model.Categoria;
 import model.Filme;
-import model.Genero;
-
-import javax.imageio.ImageIO;
-import javax.swing.Icon;
 
 public class FilmeDAO {
 	private DataSource dataSource;
@@ -83,10 +72,6 @@ public class FilmeDAO {
 				filme.setDuracao(rs.getString("duracao"));
 				filme.setLancamento(rs.getString("lancamento"));
 				filme.setImagem(rs.getBytes("imagem"));
-				//filme.setImagem(rs.getBlob("imagem"));
-				//filme.setImagem(rs.getBlob("imagem").getBinaryStream());
-				//filme.setImagem((Icon)rs.getBinaryStream("imagem"));
-				//filme.setImagem((Icon)rs.getObject("imagem"));
 				filme.setCategoria(categoriaDao.busca(rs.getInt("categoria")));
 				System.out.println("Filme lido");
 				
@@ -108,7 +93,8 @@ public class FilmeDAO {
 	
 	
 	
-	public void inserir(Filme f) {
+	public Boolean inserir(Filme f) {
+		Boolean retorno = false;
 		try {
 			
 			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT,  '" + f.getTitulo() + "', '" + f.getGenero().getId() + "', '" + f.getCopias() + "', '" + f.getSinopse() + "', '" + f.getDuracao() + "', '" + f.getLancamento() + "', '" + f.getImagem() + "', '" + f.getCategoria().getId() + "');";
@@ -116,11 +102,14 @@ public class FilmeDAO {
 
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
+			retorno = true;
 			
 		} catch (Exception e) {
 			System.out.println("Erro: " + e.getMessage());
 		}
+		return retorno;
 	}
+	
 	
 	/*
 	public Boolean inserir(Filme f) {
@@ -129,9 +118,10 @@ public class FilmeDAO {
 		
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String SQL = "INSERT INTO filme (titulo, genero, copias, sinopse, duracao, lancamento, imagem , categoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			
+			//ps.setString(1, tabela);
 			ps.setString(1, f.getTitulo());
 			ps.setInt(2, f.getGenero().getId());
 			ps.setInt(3, f.getCopias());
@@ -157,7 +147,7 @@ public class FilmeDAO {
 	public void editar(Filme f) {
 		try {
 			
-			String SQL = "UPDATE " + tabela + " SET titulo = '" + f.getTitulo() + "', genero = '" + f.getGenero() + "', copias = '" + f.getCopias() + "', sinopse = '" + f.getSinopse() + "', duracao = '" + f.getDuracao() + "', lancamento = '" + f.getLancamento() + "', imagem = '" + f.getImagem() + "', categoria = '" + f.getCategoria() + "' WHERE id = " + f.getId() + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET titulo = '" + f.getTitulo() + "', genero = '" + f.getGenero().getId() + "', copias = '" + f.getCopias() + "', sinopse = '" + f.getSinopse() + "', duracao = '" + f.getDuracao() + "', lancamento = '" + f.getLancamento() + "', imagem = '" + f.getImagem() + "', categoria = '" + f.getCategoria().getId() + "' WHERE id = " + f.getId() + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();
@@ -181,31 +171,6 @@ public class FilmeDAO {
 	}
 	
 	
-	// Conversor de Imagem para Bytes para mandar para o Banco de Dados
-	public byte[] imageToByte(Image image) {	
-		
-		BufferedImage bi = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
-		Graphics bg = bi.getGraphics();
-		bg.drawImage(image, 0, 0, null);
-		bg.dispose();
-		
-		ByteArrayOutputStream buff = new ByteArrayOutputStream();		
-	    try {  
-	    	ImageIO.write(bi, "JPG", buff);  
-	    } catch (IOException e) {  
-	    	e.printStackTrace();  
-	    }  
-	    return buff.toByteArray();		
-	}
 	
-	
-	
-	public static Image byteToImage(byte[] bytes) {
-		if(bytes == null) {
-			return null;
-		}else {
-			return Toolkit.getDefaultToolkit().createImage(bytes);
-		}
-	}
 	
 }

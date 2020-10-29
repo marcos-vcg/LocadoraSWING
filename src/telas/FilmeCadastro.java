@@ -30,7 +30,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import dao.CategoriaDAO;
@@ -69,7 +68,6 @@ public class FilmeCadastro extends JInternalFrame {
 	JTextArea txa_sinopse;
 	
 	JLabel lbl_mostrar_imagem;
-	//Image image;
 	BufferedImage imagem;
 	
 		
@@ -245,7 +243,6 @@ public class FilmeCadastro extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 								
 				UploadFoto();
-				//image = CarregarImagem();
 			}		
 		});  
 		
@@ -291,7 +288,6 @@ public class FilmeCadastro extends JInternalFrame {
 				txf_lancamento.setText(filme.getLancamento());
 				cbx_categoria.setSelectedItem(filme.getCategoria().getNome());
 				txa_sinopse.setText(filme.getSinopse());
-				//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
 				imagem = ManipularImagem.byteToBuffered(filme.getImagem());
 				lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
 			
@@ -339,6 +335,7 @@ public class FilmeCadastro extends JInternalFrame {
 					btn_cadastro.setText("Cadastrar");
 					edit = false;
 				} else if (edit) {
+					
 					String palavra = txf_titulo.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
@@ -373,9 +370,13 @@ public class FilmeCadastro extends JInternalFrame {
 					novo.setImagem(ManipularImagem.bufferedToBytes(imagem));
 					novo.setSinopse(txa_sinopse.getText());
 					
-					filmeDao.inserir(novo);
-					JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
-					
+					Boolean cadastro = filmeDao.inserir(novo);
+					if(cadastro) {
+						JOptionPane.showMessageDialog(null, "Cadastro efetuado com sucesso!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
+					}else {
+						JOptionPane.showMessageDialog(null, "Erro ao inserir no servidor!", "Cadastro não Efetuado!", JOptionPane.WARNING_MESSAGE);
+					}
+				
 				}
 				limparComponentes();
 				preencherTabela();				
@@ -396,7 +397,7 @@ public class FilmeCadastro extends JInternalFrame {
 		txf_duracao.setText("");
 		txf_lancamento.setText("");
 		cbx_categoria.setSelectedIndex(0);
-		lbl_mostrar_imagem.setIcon(null);
+		//lbl_mostrar_imagem.setIcon(null);
 		setarImagemPadrao();
 		txa_sinopse.setText("");
 		abas.setSelectedIndex(0);
@@ -488,9 +489,15 @@ public class FilmeCadastro extends JInternalFrame {
 	
 	// Gera o icone redimensionado ao label que será exibido
 	public ImageIcon GerarIcone(BufferedImage image) {
-		//ImageIcon icon = new ImageIcon(image);   		// Imagem cortada
-		ImageIcon icone = new ImageIcon(image.getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
 		
+		ImageIcon icone = null;
+		try {
+			//icone = new ImageIcon(image);   		// Imagem cortada
+			icone = new ImageIcon(image.getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+		} catch (Exception ex) {
+			System.out.println("Erro ao carregar ícone da imagem");
+			setarImagemPadrao();
+		}
 		return icone;
 	}
 	
@@ -501,10 +508,10 @@ public class FilmeCadastro extends JInternalFrame {
 			
 			InputStream stream = new FileInputStream("../LocadoraSWING/src/util/teste_netflix.jpg");
 			imagem = ImageIO.read(stream);
-			ImageIcon icon = GerarIcone(imagem);
-			lbl_mostrar_imagem.setIcon(icon);
+			lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
 			
 		} catch (IOException e) {
+			System.out.println("Erro ao selecionar imagem padrao");
 			e.printStackTrace();
 		}
 	}
