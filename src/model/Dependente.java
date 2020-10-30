@@ -8,18 +8,33 @@ public class Dependente implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private Integer id;
 	private String nome;
 	private Grau grau;
-	private Integer id;
-	static int contador = 0;
+	private Cliente titular;
+	
+
+	
+	
+	
+	public Dependente() {
+		
+	}
 	
 	public Dependente(String nome, Grau grau) {
-		super();
 		this.nome = nome;
 		this.grau = grau;
-		this.id = contador++;
 	}
 
+	public Integer getId() {
+		return id;
+	}
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
 	public String getNome() {
 		return nome;
 	}
@@ -35,12 +50,15 @@ public class Dependente implements Serializable{
 	public void setGrau(Grau grau) {
 		this.grau = grau;
 	}
-	
-	public Integer getId() {
-		return id;
+
+	public Cliente getTitular() {
+		return titular;
+	}
+
+	public void setTitular(Cliente titular) {
+		this.titular = titular;
 	}
 	
-	public static void setContador(int cont) {
-		contador = cont;
-	}
+	
+	
 }

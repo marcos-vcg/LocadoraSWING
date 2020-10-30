@@ -9,19 +9,23 @@ public class Locacao implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private int id;
 	private Filme filme;
 	private Date locacao;
 	private Date devolucao;
-	private Integer id;
-	static int contador = 0;
 	
-	public Locacao(Filme filme, Date locacao) {
-		super();
-		this.filme = filme;
-		this.locacao = locacao;
-		this.id = contador++;
-	}
 
+	
+
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	public Filme getFilme() {
 		return filme;
 	}
@@ -47,11 +51,4 @@ public class Locacao implements Serializable{
 		this.devolucao = devolucao;
 	}
 	
-	public Integer getId() {
-		return id;
-	}
-	
-	public static void setContador(int cont) {
-		contador = cont;
-	}
 }

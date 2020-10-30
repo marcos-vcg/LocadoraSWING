@@ -3,34 +3,40 @@ package model;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import javax.swing.Icon;
-
 public class Cliente implements Serializable{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	
+	private Integer id;
 	private String nome;
 	private String cpf;
 	private String telefone;
 	private String email;
 	private String nascimento;
 	private String endereco;
-	private Icon imagem;
+	private byte[] imagem;
+	
+	
+	
 	private ArrayList<Dependente> dependentes = new ArrayList<>();
 	private ArrayList<Locacao> locacoes = new ArrayList<>();
-	private Integer id;
-	static int contador = 0;
 
-	public Cliente(String nome, String cpf, String telefone) {
-		super();
-		this.nome = nome;
-		this.cpf = cpf;
-		this.telefone = telefone;
-		this.id = contador++;
+
+
+	
+
+	public Integer getId() {
+		return id;
 	}
-
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
 	public String getNome() {
 		return nome;
 	}
@@ -79,11 +85,11 @@ public class Cliente implements Serializable{
 		this.endereco = endereco;
 	}
 
-	public Icon getImagem() {
+	public byte[] getImagem() {
 		return imagem;
 	}
 
-	public void setImagem(Icon imagem) {
+	public void setImagem(byte[] imagem) {
 		this.imagem = imagem;
 	}
 
@@ -102,13 +108,6 @@ public class Cliente implements Serializable{
 	public void setLocacoes(ArrayList<Locacao> locacoes) {
 		this.locacoes = locacoes;
 	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public static void setContador(int cont) {
-		contador = cont;
-	}
+	
 		
 }

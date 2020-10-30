@@ -5,13 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -69,6 +65,7 @@ public class FilmeCadastro extends JInternalFrame {
 	
 	JLabel lbl_mostrar_imagem;
 	BufferedImage imagem;
+	byte[] imagemByte;
 	
 		
 	public FilmeCadastro() {
@@ -289,8 +286,8 @@ public class FilmeCadastro extends JInternalFrame {
 				cbx_categoria.setSelectedItem(filme.getCategoria().getNome());
 				txa_sinopse.setText(filme.getSinopse());
 				imagem = ManipularImagem.byteToBuffered(filme.getImagem());
-				lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
-			
+				//lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
+				GerarIcone(filme.getImagem());
 
 				abas.setSelectedIndex(1);
 				btn_cadastro.setText("Editar");
@@ -349,6 +346,7 @@ public class FilmeCadastro extends JInternalFrame {
 					editar.setLancamento(txf_lancamento.getText());
 					editar.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
 					editar.setImagem(ManipularImagem.bufferedToBytes(imagem));
+					editar.setImagem(imagemByte);
 					editar.setSinopse(txa_sinopse.getText());
 					
 					filmeDao.editar(editar);
@@ -367,7 +365,8 @@ public class FilmeCadastro extends JInternalFrame {
 					novo.setDuracao(txf_duracao.getText());
 					novo.setLancamento(txf_lancamento.getText());
 					novo.setCategoria(cadCategoria.get(cbx_categoria.getSelectedIndex()));
-					novo.setImagem(ManipularImagem.bufferedToBytes(imagem));
+					//novo.setImagem(ManipularImagem.bufferedToBytes(imagem));
+					novo.setImagem(imagemByte);
 					novo.setSinopse(txa_sinopse.getText());
 					
 					Boolean cadastro = filmeDao.inserir(novo);
@@ -398,7 +397,8 @@ public class FilmeCadastro extends JInternalFrame {
 		txf_lancamento.setText("");
 		cbx_categoria.setSelectedIndex(0);
 		//lbl_mostrar_imagem.setIcon(null);
-		setarImagemPadrao();
+		//setarImagemPadrao();
+		imagemByte = null;
 		txa_sinopse.setText("");
 		abas.setSelectedIndex(0);
 		btn_cadastro.setText("Cadastrar");
@@ -436,8 +436,13 @@ public class FilmeCadastro extends JInternalFrame {
 		if (resposta == JFileChooser.APPROVE_OPTION) {
 			File arquivo = fc_upload.getSelectedFile();
 			try {
-				imagem = ManipularImagem.getBufferedImage(arquivo.getAbsolutePath());
-				lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
+				
+				//imagem = ManipularImagem.getBufferedImage(arquivo.getAbsolutePath());
+				//lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
+				GerarIcone(arquivo);
+				
+				BufferedImage img = ManipularImagem.getBufferedImage(arquivo.getAbsolutePath());
+				imagemByte = ManipularImagem.bufferedToBytes(img);
 			}catch(Exception ex) {
 				System.out.println(ex.getStackTrace().toString());
 			}
@@ -488,7 +493,7 @@ public class FilmeCadastro extends JInternalFrame {
 	
 	
 	// Gera o icone redimensionado ao label que será exibido
-	public ImageIcon GerarIcone(BufferedImage image) {
+	public ImageIcon erarIcone(BufferedImage image) {
 		
 		ImageIcon icone = null;
 		try {
@@ -496,11 +501,35 @@ public class FilmeCadastro extends JInternalFrame {
 			icone = new ImageIcon(image.getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
 		} catch (Exception ex) {
 			System.out.println("Erro ao carregar ícone da imagem");
-			setarImagemPadrao();
+			//setarImagemPadrao();
 		}
 		return icone;
 	}
 	
+	// Gera o icone redimensionado ao label que será exibido
+	public void GerarIcone(byte[] img) {
+		
+		if (img instanceof byte[]) {
+			ImageIcon icone = new ImageIcon(img);
+			icone.setImage(icone.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+			lbl_mostrar_imagem.setIcon(icone);
+		}
+	}
+	// Gera o icone redimensionado ao label que será exibido
+	public void GerarIcone(File img) {
+		
+		if(img instanceof File) {
+			ImageIcon icone = new ImageIcon(img.getAbsolutePath());
+			icone.setImage(icone.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+			lbl_mostrar_imagem.setIcon(icone);
+		}
+	}
+	
+	
+	
+	
+	
+	/*
 	
 	// Seta a Imagem padrão atraves do metodo GerarIcone() sempre que limpar a tela para um novo cadastro
 	public void setarImagemPadrao() {
@@ -515,7 +544,7 @@ public class FilmeCadastro extends JInternalFrame {
 			e.printStackTrace();
 		}
 	}
-	
+	*/
 	
 	
 	

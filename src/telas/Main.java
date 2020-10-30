@@ -16,10 +16,8 @@ import javax.swing.JMenuItem;
 
 import model.Categoria;
 import model.Cliente;
-import model.Dependente;
 import model.Filme;
 import model.Genero;
-import model.Locacao;
 
 
 class Main {
@@ -65,29 +63,10 @@ class Main {
 		filmes = new ArrayList<Filme>();
 		clientes = new ArrayList<Cliente>();
 		
-		
+		/*
 		// Deserializa => Carrega dos arquivos 
 		try {
-			/*
-			generos = (ArrayList<Genero>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos");
-			int contGenero = 0;
-			for(Genero g: generos) { if(g.getId() > contGenero) contGenero = g.getId();	}
-			Genero.setContador(contGenero+1);
-			*/
 			
-			/*
-			categorias = (ArrayList<Categoria>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias");
-			int contCategoria = 0;
-			for(Categoria c: categorias) { if(c.getId() > contCategoria) contCategoria = c.getId();	}
-			Categoria.setContador(contCategoria+1);
-			*/
-			
-			/*
-			filmes = (ArrayList<Filme>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes");
-			int contFilme = 0;
-			for(Filme f: filmes) { if(f.getId() > contFilme) contFilme = f.getId();	}
-			Filme.setContador(contFilme+1);
-			*/
 			
 			clientes = (ArrayList<Cliente>) deserializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes");
 			int contCliente = 0;
@@ -106,7 +85,7 @@ class Main {
 		} catch (java.io.FileNotFoundException ex){	
 		} catch (Exception ex) {
             System.err.println("Falha ao deserializar! - " + ex.toString());
-        }
+        }*/
 		
 		
 		JFrame f = new JFrame("Locadora");
@@ -158,7 +137,7 @@ class Main {
 		final JDesktopPane jdpCliente = new JDesktopPane();
 		i4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ClienteCadastro clienteFrame = new ClienteCadastro(clientes);
+				ClienteCadastro clienteFrame = new ClienteCadastro();
 				
 				jdpCliente.add(clienteFrame);
 				clienteFrame.setVisible(true);
@@ -208,19 +187,20 @@ class Main {
 		f.addWindowListener(new WindowAdapter() {
 
 			public void windowClosing(WindowEvent e) {
+				/*
 				//serializa
 				try {
 					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\generos", generos);
 					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\categorias", categorias);
 					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\filmes", filmes);
-					serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes", clientes); 
+					//serializar("C:\\Users\\RAVDev\\Documents\\GitHub\\rav_tec_marcos\\Locadora\\src\\arquivos\\clientes", clientes); 
 		        } catch (java.io.FileNotFoundException ex){
 				} catch (Exception ex) {
 		            System.err.println("Falha ao serializar! - " + ex.toString());
 		        } finally {
 		        	System.exit(0);
-		        }
-
+		        }*/
+				System.exit(0);
 			}
 		});
 	}

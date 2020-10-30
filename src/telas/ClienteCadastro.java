@@ -26,9 +26,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import dao.ClienteDAO;
+import dao.DataSource;
+import dao.DependenteDAO;
 import model.Cliente;
 import model.Dependente;
 import model.Grau;
+import model.Locacao;
 
 @SuppressWarnings("serial")
 public class ClienteCadastro extends JInternalFrame {
@@ -38,8 +42,14 @@ public class ClienteCadastro extends JInternalFrame {
 	private boolean edit = false;
 	private boolean editdependente = false;
 	
-	
+	DataSource dataSource;
+	ClienteDAO clienteDao;
+	DependenteDAO dependenteDao;
+
 	ArrayList<Cliente> cadCliente;
+	ArrayList<Dependente> cadDependente;
+	ArrayList<Locacao> cadLocacao;	
+	
 
 	JTabbedPane abas;
 	JPanel pnl_consulta, pnl_cadastro;
@@ -69,7 +79,7 @@ public class ClienteCadastro extends JInternalFrame {
 	//Dependente dependenteSelecionado;
 	
 	
-	public ClienteCadastro(ArrayList<Cliente> cadCliente) {
+	public ClienteCadastro() {
 		super("Cadastro de Clientes", true, // resizable
 				true, // closable
 				true, // maximizable
@@ -78,7 +88,6 @@ public class ClienteCadastro extends JInternalFrame {
 		setLocation(xPosition, yPosition);
 		setLayout(null);
 
-		this.cadCliente = cadCliente;
 		
 		setarElementos();
 		adicionarListeners();
@@ -91,6 +100,18 @@ public class ClienteCadastro extends JInternalFrame {
 	
 	
 	private void setarElementos () {
+		
+		// Controlador do Acesso ao Banco de Dados
+		dataSource = new DataSource();
+		
+		clienteDao = new ClienteDAO(dataSource);
+		dependenteDao = new DependenteDAO(dataSource);
+		
+		this.cadCliente = clienteDao.readAll();
+		this.cadDependente = dependenteDao.readAll();
+
+		
+		
 		
 		// Criar Abas
 		abas = new JTabbedPane(JTabbedPane.TOP);
@@ -234,12 +255,10 @@ public class ClienteCadastro extends JInternalFrame {
 		
 		btn_tbl_excluir = new JButton("Excluir");
 		btn_tbl_excluir.setEnabled(false);
-		pnl_cadastro.add(btn_tbl_excluir).setBounds(240, 240, 100, 18);
-		
-		
-		
-		
+		pnl_cadastro.add(btn_tbl_excluir).setBounds(240, 240, 100, 18);	
 	}
+	
+	
 	
 	private void adicionarListeners() {
 		
@@ -302,11 +321,7 @@ public class ClienteCadastro extends JInternalFrame {
 		}); 
 		
 		
-
-		
-		
-		
-		
+	
 		// Ações dos Botões
 		btn_pesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -343,6 +358,24 @@ public class ClienteCadastro extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
+				Cliente cliente = clienteDao.busca(idSelected);
+				cadDependente = dependenteDao.readAll(idSelected);
+				
+				txf_nome.setText(cliente.getNome());
+				txf_cpf.setText(cliente.getCpf());
+				txf_telefone.setText(cliente.getTelefone());
+				txf_email.setText(cliente.getEmail());
+				txf_nascimento.setText(cliente.getNascimento());
+				txf_endereco.setText(cliente.getNascimento());			
+				
+				cliente.setDependentes(cadDependente);
+				tbl_modelo_dep.setNumRows(0);
+				//cliente.getDependentes().sort(Comparator.comparing(Dependente::getNome));
+				for (Dependente d : cliente.getDependentes()) { tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau() });	}
+			
+				
+				
+				/*
 				for(int i = 0; i < cadCliente.size(); i++) { 
 					if (cadCliente.get(i).getId() == idSelected) {
 						txf_nome.setText(cadCliente.get(i).getNome());
@@ -351,15 +384,13 @@ public class ClienteCadastro extends JInternalFrame {
 						txf_email.setText(cadCliente.get(i).getEmail());
 						txf_nascimento.setText(cadCliente.get(i).getNascimento());
 						txf_endereco.setText(cadCliente.get(i).getNascimento());
-						//txf_imagem.setText(cadFilme.get(i).getImagem().toString());
-						lbl_mostrar_imagem.setIcon(cadCliente.get(i).getImagem());
-						//txa_dependentes.setText(cadCliente.get(i).getDependentes());
+						//lbl_mostrar_imagem.setIcon(cadCliente.get(i).getImagem());
 						
 						tbl_modelo_dep.setNumRows(0);
 						cadCliente.get(i).getDependentes().sort(Comparator.comparing(Dependente::getNome));
 						for (Dependente d : cadCliente.get(i).getDependentes()) { tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau() });	}
 					}  
-				}
+				}*/
 				
 				abas.setSelectedIndex(1);
 				btn_cadastro.setText("Editar");
@@ -413,13 +444,17 @@ public class ClienteCadastro extends JInternalFrame {
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
 					if (indexClienteSelect != -1) {
+						
+						
+						
+						
 						cadCliente.get(indexClienteSelect).setNome(palavra); 
 						cadCliente.get(indexClienteSelect).setCpf(txf_cpf.getText());
 						cadCliente.get(indexClienteSelect).setTelefone(txf_telefone.getText());
 						cadCliente.get(indexClienteSelect).setEmail(txf_email.getText());
 						cadCliente.get(indexClienteSelect).setNascimento(txf_nascimento.getText());
 						cadCliente.get(indexClienteSelect).setEndereco(txf_endereco.getText());
-						cadCliente.get(indexClienteSelect).setImagem(lbl_mostrar_imagem.getIcon());		
+						//cadCliente.get(indexClienteSelect).setImagem(lbl_mostrar_imagem.getIcon());		
 						
 						JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 						limparComponentes ();
@@ -435,16 +470,23 @@ public class ClienteCadastro extends JInternalFrame {
 					JOptionPane.showMessageDialog(null, "CPF já Cadastrado!", "Cadastro Inválido!", JOptionPane.WARNING_MESSAGE);
 				}else{
 					
+					Cliente novoCliente = new Cliente();
+					
 					String palavra = txf_nome.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
-					Cliente novoCliente = new Cliente(palavra, txf_cpf.getText(), txf_telefone.getText() );
+					novoCliente.setNome(palavra);
+					novoCliente.setCpf(txf_cpf.getText());
+					novoCliente.setTelefone(txf_telefone.getText());
 					novoCliente.setEmail(txf_email.getText());
 					novoCliente.setNascimento(txf_nascimento.getText());
 					novoCliente.setEndereco(txf_endereco.getText());
-					novoCliente.setImagem(lbl_mostrar_imagem.getIcon());
+					//novoCliente.setImagem(lbl_mostrar_imagem.getIcon());
+					
+					clienteDao.inserir(novoCliente);
 					
 					for(Dependente d: temp) {
 						novoCliente.getDependentes().add(new Dependente(d.getNome(), d.getGrau()));
+						
 					}
 					
 					//novoCliente.setDependentes(temp);
@@ -568,12 +610,14 @@ public class ClienteCadastro extends JInternalFrame {
 		
 	}
 	
+	
 	private void setarTabelaClientes() {
 		// Monta Tabela
 		tbl_modelo.setNumRows(0);
 		cadCliente.sort(Comparator.comparing(Cliente::getNome));
 		for (Cliente c : cadCliente) { tbl_modelo.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getEmail()});	}
 	}
+	
 	
 	private void setarTabelaDependentes () {
 		tbl_modelo_dep.setNumRows(0);
@@ -583,12 +627,7 @@ public class ClienteCadastro extends JInternalFrame {
 			for (Dependente d : cadCliente.get(indexClienteSelect).getDependentes()) { 
 				tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau()});	
 			}
-		}
-		
-		
-		
-		
-		
+		}		
 	}
 	
 	
