@@ -238,7 +238,7 @@ public class ClienteCadastro extends JInternalFrame {
 		
 		// Botões de Ação
 		btnVoltar = new JButton("Cancelar");
-		//pnl_cadastro.add(btnVoltar).setBounds(325, 238, 85, 23);
+		pnl_cadastro.add(btnVoltar).setBounds(424, 200, 100, 23);
 		btnVoltar.setAction(cancelar);
 
 		btn_cadastro = new JButton("Cadastrar");
@@ -247,7 +247,7 @@ public class ClienteCadastro extends JInternalFrame {
 		
 		// Botões Tabela Detalhe
 		btn_tbl_cadastro = new JButton("Cadastrar");
-		//btn_tbl_cadastro.setEnabled(false);
+		btn_tbl_cadastro.setEnabled(false);
 		pnl_cadastro.add(btn_tbl_cadastro).setBounds(240, 180, 100, 18);
 		
 		btn_tbl_editar = new JButton("Editar");
@@ -378,6 +378,7 @@ public class ClienteCadastro extends JInternalFrame {
 				abas.setSelectedIndex(1);
 				btn_cadastro.setText("Editar");
 				edit = true;
+				btn_tbl_cadastro.setEnabled(true);
 			}	
 		});		
 		
@@ -493,7 +494,6 @@ public class ClienteCadastro extends JInternalFrame {
 				} else if(editdependente){
 					if(tbl_clientes.getSelectedRow() != -1) {
 						
-						
 						if (tbl_dependentes.getSelectedRow() != -1) {
 							Integer idDependenteSelecionado = (Integer) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
 							Dependente dependente = dependenteDao.busca(idDependenteSelecionado);
@@ -529,10 +529,10 @@ public class ClienteCadastro extends JInternalFrame {
 					if(tbl_clientes.getSelectedRow() != -1) {
 						//Integer idClienteSelect = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
 						cadDependente = dependenteDao.readAll(idClienteSelect);
-						if(cadDependente.size()<3) {
+						if(cadDependente == null || cadDependente.size()<3) {
 							
 							Dependente dependente = new Dependente(txf_dependente.getText().toString() , Grau.valueOf(cbx_grau.getSelectedItem().toString()));
-							
+							dependente.setTitular(clienteDao.busca(idClienteSelect));
 							dependenteDao.inserir(dependente);
 							JOptionPane.showMessageDialog(null, "O Dependente Foi Cadastrado!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
 							
@@ -584,7 +584,7 @@ public class ClienteCadastro extends JInternalFrame {
 
 				Integer idClienteSelect = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
 				int idDependenteSelecionado = (int) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
-				cadDependente.remove(idDependenteSelecionado); 
+				dependenteDao.apagar(idDependenteSelecionado); 
 				
 				txf_dependente.setText("");	
 				cbx_grau.setSelectedIndex(0);
@@ -632,6 +632,7 @@ public class ClienteCadastro extends JInternalFrame {
 		abas.setSelectedIndex(0);
 		btn_cadastro.setText("Cadastrar");
 		edit = false;
+		btn_tbl_cadastro.setEnabled(false);
 	}
 	
 	public boolean existeCpf() {
@@ -646,12 +647,13 @@ public class ClienteCadastro extends JInternalFrame {
 
 	private class SwingAction_1 extends AbstractAction {
 		public SwingAction_1() {
-			putValue(NAME, "Voltar");
+			putValue(NAME, "Cancelar");
 			putValue(SHORT_DESCRIPTION, "Some short description");
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			dispose();
+			//dispose();
+			limparComponentes();
 		}
 	}
 	

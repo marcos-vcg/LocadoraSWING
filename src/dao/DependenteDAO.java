@@ -36,9 +36,9 @@ public class DependenteDAO {
 			return dependente;
 			
 		} catch(SQLException ex) {
-			System.err.println("Erro ao Recuperar categoria " + ex.getMessage());
+			System.err.println("Erro ao Recuperar dependente " + ex.getMessage());
 		} catch(Exception ex) {
-			System.err.println("Erro Geral " + ex.getMessage());
+			System.err.println("Erro Geral DependenteDAO" + ex.getMessage());
 		}
 		return null;
 	}
@@ -64,9 +64,9 @@ public class DependenteDAO {
 			return lista;
 			
 		} catch(SQLException ex) {
-			System.err.println("Erro ao Recuperar " + ex.getMessage());
+			System.err.println("Erro ao Recuperar Dependente" + ex.getMessage());
 		} catch(Exception ex) {
-			System.err.println("Erro Geral " + ex.getMessage());
+			System.err.println("Erro Geral DependenteDAO" + ex.getMessage());
 		}
 		return null;
 	}
@@ -92,9 +92,9 @@ public class DependenteDAO {
 			return lista;
 			
 		} catch(SQLException ex) {
-			System.err.println("Erro ao Recuperar " + ex.getMessage());
+			System.err.println("Erro ao Recuperar Dependente" + ex.getMessage());
 		} catch(Exception ex) {
-			System.err.println("Erro Geral " + ex.getMessage());
+			System.err.println("Erro Geral DependenteDAO" + ex.getMessage());
 		}
 		return null;
 	}
@@ -102,26 +102,26 @@ public class DependenteDAO {
 	public void inserir(Dependente d) {
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " (nome, preco) VALUES ('" + d.getNome() + "', '" + d.getGrau() + "', '" + d.getTitular().getId() + "');";
+			String SQL = "INSERT INTO " + tabela + " (nome, grau, titular) VALUES ('" + d.getNome() + "', '" + d.getGrau() + "', '" + d.getTitular().getId() + "');";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
 		} catch (Exception e) {
-			System.out.println("Erro: " + e.getMessage());
+			System.out.println("Erro Geral DependenteDAO: " + e.getMessage());
 		}
 	}
 	
 	public void editar(Dependente d) {
 		try {
 			
-			String SQL = "UPDATE " + tabela + " SET nome = '" + d.getNome() + "', preco = '" + d.getGrau() + "', preco = '" + d.getTitular() + "' WHERE id = " + d.getId() + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET nome = '" + d.getNome() + "', grau = '" + d.getGrau() + "', titular = '" + d.getTitular().getId() + "' WHERE id = " + d.getId() + ";" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);
 			ps.close();
 			
 		} catch (Exception e) {
-			System.out.println("Erro: " + e.getMessage());
+			System.out.println("Erro Geral DependenteDAO: " + e.getMessage());
 		}
 	}
 	
@@ -134,7 +134,7 @@ public class DependenteDAO {
 			ps.close();
 			
 		} catch (Exception e) {
-			System.out.println("Erro: " + e.getMessage());
+			System.out.println("Erro Geral DependenteDAO: " + e.getMessage());
 		}
 	}
 }
