@@ -3,6 +3,8 @@ package telas;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -23,7 +25,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import dao.ClienteDAO;
@@ -33,6 +34,7 @@ import model.Cliente;
 import model.Dependente;
 import model.Grau;
 import model.Locacao;
+import util.ManipularImagem;
 
 @SuppressWarnings("serial")
 public class ClienteCadastro extends JInternalFrame {
@@ -61,7 +63,7 @@ public class ClienteCadastro extends JInternalFrame {
 	JScrollPane scp_tbl_clientes;
 	JButton btn_editar, btn_excluir, btn_novo;
 	
-	JTextField txf_nome, txf_cpf, txf_telefone, txf_email, txf_nascimento, txf_endereco, txf_imagem, txf_dependente ;
+	JTextField txf_nome, txf_cpf, txf_telefone, txf_email, txf_nascimento, txf_endereco, txf_dependente ;
 	JLabel lbl_mostrar_imagem;
 	JButton btn_upload;
 	JComboBox<Grau> cbx_grau;
@@ -73,10 +75,11 @@ public class ClienteCadastro extends JInternalFrame {
 	JButton btnVoltar, btn_cadastro;
 	JButton btn_tbl_cadastro, btn_tbl_editar, btn_tbl_excluir;
 	
-	int idClienteSelect, indexClienteSelect, idDependenteSelecionado, indexDependenteSelect; 
+	//int idClienteSelect, indexClienteSelect, idDependenteSelecionado, indexDependenteSelect; 
 	ArrayList<Dependente> temp = new ArrayList<>();
 	//clienteSelecionado;
 	//Dependente dependenteSelecionado;
+	byte[] imagemByte;
 	
 	
 	public ClienteCadastro() {
@@ -200,8 +203,6 @@ public class ClienteCadastro extends JInternalFrame {
 		pnl_cadastro.add(txf_endereco).setBounds(270, 90, 110, 20);
 		
 		pnl_cadastro.add(new JLabel("Foto:")).setBounds(400, 65, 75, 14);
-		txf_imagem = new JTextField(5);
-		pnl_cadastro.add(txf_imagem).setBounds(400, 90, 115, 20);
 		lbl_mostrar_imagem = new JLabel("");
 		pnl_cadastro.add(lbl_mostrar_imagem).setBounds(415, 120, 90, 110);
 		btn_upload = new JButton("Upload");
@@ -272,7 +273,7 @@ public class ClienteCadastro extends JInternalFrame {
                 btn_excluir.setEnabled(!lsm.isSelectionEmpty());
                 //btn_tbl_cadastro.setEnabled(!lsm.isSelectionEmpty());
 				
-                
+               /* 
                 if(lsm.isSelectionEmpty()) {
                 	idClienteSelect = -1;
                 	indexClienteSelect = -1;
@@ -281,7 +282,7 @@ public class ClienteCadastro extends JInternalFrame {
                     for(int i = 0; i < cadCliente.size(); i++) { 
 						if (cadCliente.get(i).getId() == idClienteSelect) {	indexClienteSelect = i;	} 
                     }
-                }
+                }*/
                 
             }
         });
@@ -302,21 +303,7 @@ public class ClienteCadastro extends JInternalFrame {
 		btn_upload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				JFileChooser fc_upload = new JFileChooser();
-				fc_upload.setDialogTitle("Procurar aquivo");
-				fc_upload.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif");
-				fc_upload.setFileFilter(filter);
-				fc_upload.showOpenDialog(getParent());
-				
-				// Import ImageIcon   
-				if(fc_upload.getSelectedFile() != null) {
-					ImageIcon iconLogo = new ImageIcon(fc_upload.getSelectedFile().getPath());
-					// lbl_mostrar_imagem.setIcon(iconLogo);  //  Mostra a imagem cortada de acordo com o tamanho destino. 
-					// Mostra Imagem Redimensionada
-					lbl_mostrar_imagem.setIcon(new ImageIcon(iconLogo.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT)));
-					txf_imagem.setText(fc_upload.getSelectedFile().getAbsolutePath());  	 // Mostra no campo de texto o caminho 
-				}  						
+				UploadFoto();				
 			}		
 		}); 
 		
@@ -368,11 +355,7 @@ public class ClienteCadastro extends JInternalFrame {
 				txf_nascimento.setText(cliente.getNascimento());
 				txf_endereco.setText(cliente.getNascimento());			
 				
-				cliente.setDependentes(cadDependente);
-				tbl_modelo_dep.setNumRows(0);
-				//cliente.getDependentes().sort(Comparator.comparing(Dependente::getNome));
-				for (Dependente d : cliente.getDependentes()) { tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau() });	}
-			
+				setarDependentes(idSelected);
 				
 				
 				/*
@@ -401,14 +384,12 @@ public class ClienteCadastro extends JInternalFrame {
 		btn_excluir.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 
-				Integer idSelected = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
-				for(int i = 0; i < cadCliente.size(); i++) { if (cadCliente.get(i).getId() == idSelected) {cadCliente.remove(i);}  }
+				Integer idClienteSelected = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
+				clienteDao.apagar(idClienteSelected);
 				JOptionPane.showMessageDialog(null, "Exclusão efetuada com sucesso!", "Exclusão Efetuada!", JOptionPane.WARNING_MESSAGE);
 				
 				setarTabelaClientes();
 				limparComponentes ();				
-				btn_cadastro.setText("Cadastrar");
-				edit = false;
 			}
 		});		  
 
@@ -416,8 +397,6 @@ public class ClienteCadastro extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				limparComponentes ();				
 				abas.setSelectedIndex(1);
-				btn_cadastro.setText("Cadastrar");
-				edit = false;
 			}
 		});
 		
@@ -440,27 +419,27 @@ public class ClienteCadastro extends JInternalFrame {
 					}
 					
 				} else if (edit) {
+					
+					Integer idClienteSelect = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
+										
+					
 					String palavra = txf_nome.getText();
 					palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
 					
-					if (indexClienteSelect != -1) {
+					if (idClienteSelect != null) {
+						Cliente cliente = clienteDao.busca(idClienteSelect);
+						cliente.setNome(palavra); 
+						cliente.setCpf(txf_cpf.getText());
+						cliente.setTelefone(txf_telefone.getText());
+						cliente.setEmail(txf_email.getText());
+						cliente.setNascimento(txf_nascimento.getText());
+						cliente.setEndereco(txf_endereco.getText());
+						//cliente.setImagem(lbl_mostrar_imagem.getIcon());		
 						
-						
-						
-						
-						cadCliente.get(indexClienteSelect).setNome(palavra); 
-						cadCliente.get(indexClienteSelect).setCpf(txf_cpf.getText());
-						cadCliente.get(indexClienteSelect).setTelefone(txf_telefone.getText());
-						cadCliente.get(indexClienteSelect).setEmail(txf_email.getText());
-						cadCliente.get(indexClienteSelect).setNascimento(txf_nascimento.getText());
-						cadCliente.get(indexClienteSelect).setEndereco(txf_endereco.getText());
-						//cadCliente.get(indexClienteSelect).setImagem(lbl_mostrar_imagem.getIcon());		
-						
+						clienteDao.editar(cliente);
 						JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 						limparComponentes ();
-						abas.setSelectedIndex(0);
-						btn_cadastro.setText("Cadastrar");
-						edit = false;
+		
 					}  else {
 						JOptionPane.showMessageDialog(null, "Selecione novamente o Cliente!", "Edição não Efetuada!", JOptionPane.WARNING_MESSAGE);
 						abas.setSelectedIndex(0);
@@ -506,18 +485,28 @@ public class ClienteCadastro extends JInternalFrame {
 		btn_tbl_cadastro.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				
+				Integer idClienteSelect = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
+				//Integer idDependenteSelecionado = (Integer) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
+				
 				if (txf_dependente.getText().contentEquals("") || Grau.valueOf(cbx_grau.getSelectedItem().toString()).getDescricao().contentEquals("") ){
 					JOptionPane.showMessageDialog(null, "Campos Obrigatórios Vazios!", "Cadastro Inválido!", JOptionPane.WARNING_MESSAGE);
 				} else if(editdependente){
 					if(tbl_clientes.getSelectedRow() != -1) {
-						idDependenteSelecionado = (int) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
-						if (indexClienteSelect != -1) {
-							cadCliente.get(indexClienteSelect).getDependentes().get(idDependenteSelecionado).setNome(txf_dependente.getText().toString());
-							cadCliente.get(indexClienteSelect).getDependentes().get(idDependenteSelecionado).setGrau(Grau.valueOf(cbx_grau.getSelectedItem().toString()));
+						
+						
+						if (tbl_dependentes.getSelectedRow() != -1) {
+							Integer idDependenteSelecionado = (Integer) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
+							Dependente dependente = dependenteDao.busca(idDependenteSelecionado);
+							
+							dependente.setNome(txf_dependente.getText().toString());
+							dependente.setGrau(Grau.valueOf(cbx_grau.getSelectedItem().toString()));
+							
+							dependenteDao.editar(dependente);
 							JOptionPane.showMessageDialog(null, "Edição efetuada com sucesso!", "Edição Efetuada!", JOptionPane.WARNING_MESSAGE);
 						}
-						setarTabelaDependentes();	
+						setarTabelaDependentes(idClienteSelect);	
 					} else {
+						
 						for (Dependente d: temp) {
 							if(d.getId() == tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0)) {
 								d.setNome(txf_dependente.getText().toString());
@@ -533,27 +522,28 @@ public class ClienteCadastro extends JInternalFrame {
 					
 					txf_dependente.setText("");	
 					cbx_grau.setSelectedIndex(0);
+								
 					
-					
-					
-					
-				} else {
+				} else {	
 					
 					if(tbl_clientes.getSelectedRow() != -1) {
-						if (indexClienteSelect != -1) {
-	
-							if(cadCliente.get(indexClienteSelect).getDependentes().size()<3) {
-								cadCliente.get(indexClienteSelect).getDependentes().add(new Dependente(txf_dependente.getText().toString() , Grau.valueOf(cbx_grau.getSelectedItem().toString())));
-								JOptionPane.showMessageDialog(null, "O Dependente Foi Cadastrado!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
-								
-								txf_dependente.setText("");	
-								cbx_grau.setSelectedIndex(0);
-								setarTabelaDependentes();
-							}else {
-								JOptionPane.showMessageDialog(null, "O máximo de Dependentes é 3!", "Cadastro não Efetuado!", JOptionPane.WARNING_MESSAGE);
-							}
+						//Integer idClienteSelect = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
+						cadDependente = dependenteDao.readAll(idClienteSelect);
+						if(cadDependente.size()<3) {
 							
+							Dependente dependente = new Dependente(txf_dependente.getText().toString() , Grau.valueOf(cbx_grau.getSelectedItem().toString()));
+							
+							dependenteDao.inserir(dependente);
+							JOptionPane.showMessageDialog(null, "O Dependente Foi Cadastrado!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
+							
+							txf_dependente.setText("");	
+							cbx_grau.setSelectedIndex(0);
+							setarTabelaDependentes(idClienteSelect);
+						}else {
+							JOptionPane.showMessageDialog(null, "O máximo de Dependentes é 3!", "Cadastro não Efetuado!", JOptionPane.WARNING_MESSAGE);
 						}
+							
+						
 						 
 					} else {
 							
@@ -592,18 +582,13 @@ public class ClienteCadastro extends JInternalFrame {
 		btn_tbl_excluir.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 
-				
-				idDependenteSelecionado = (int) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
-				
-				if (indexClienteSelect != -1) {	
-					for(int j = 0; j < cadCliente.get(indexClienteSelect).getDependentes().size(); j++) { if (cadCliente.get(indexClienteSelect).getDependentes().get(j).getId() == idDependenteSelecionado) {cadCliente.get(indexClienteSelect).getDependentes().remove(j);}  }
-				}	 
-					
-					
+				Integer idClienteSelect = (Integer) tbl_modelo.getValueAt(tbl_clientes.getSelectedRow(), 0);
+				int idDependenteSelecionado = (int) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
+				cadDependente.remove(idDependenteSelecionado); 
 				
 				txf_dependente.setText("");	
 				cbx_grau.setSelectedIndex(0);
-				setarTabelaDependentes ();	
+				setarTabelaDependentes (idClienteSelect);	
 			}
 		});	
 		
@@ -613,39 +598,40 @@ public class ClienteCadastro extends JInternalFrame {
 	
 	private void setarTabelaClientes() {
 		// Monta Tabela
+		cadCliente = clienteDao.readAll();
 		tbl_modelo.setNumRows(0);
-		cadCliente.sort(Comparator.comparing(Cliente::getNome));
+		//cadCliente.sort(Comparator.comparing(Cliente::getNome));
 		for (Cliente c : cadCliente) { tbl_modelo.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getEmail()});	}
 	}
 	
 	
-	private void setarTabelaDependentes () {
-		tbl_modelo_dep.setNumRows(0);
+	private void setarTabelaDependentes (Integer id) {
 		
-		if (indexClienteSelect != -1) {
-			cadCliente.get(indexClienteSelect).getDependentes().sort(Comparator.comparing(Dependente::getNome));
-			for (Dependente d : cadCliente.get(indexClienteSelect).getDependentes()) { 
-				tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau()});	
-			}
-		}		
+		cadDependente = dependenteDao.readAll(id);
+		tbl_modelo_dep.setNumRows(0);
+		//cliente.getDependentes().sort(Comparator.comparing(Dependente::getNome));
+		for (Dependente d : cadDependente) { tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau() });	}
+	
 	}
 	
 	
-	private void limparComponentes () {
+	private void limparComponentes() {
 		txf_nome.setText("");
 		txf_cpf.setText("");
 		txf_telefone.setText("");
 		txf_email.setText("");
 		txf_nascimento.setText("");
 		txf_endereco.setText("");
-		txf_imagem.setText("");
+		imagemByte = null;
 		lbl_mostrar_imagem.setIcon(null);
 		tbl_modelo_dep.setNumRows(0);
-		
 		txf_dependente.setText("");	
 		cbx_grau.setSelectedIndex(0);
 		temp = null;
 		temp = new ArrayList<>();
+		abas.setSelectedIndex(0);
+		btn_cadastro.setText("Cadastrar");
+		edit = false;
 	}
 	
 	public boolean existeCpf() {
@@ -668,4 +654,59 @@ public class ClienteCadastro extends JInternalFrame {
 			dispose();
 		}
 	}
+	
+	
+	public void setarDependentes(Integer id) {
+		cadDependente = dependenteDao.readAll(id);
+		tbl_modelo_dep.setNumRows(0);
+		//cliente.getDependentes().sort(Comparator.comparing(Dependente::getNome));
+		for (Dependente d : cadDependente) { tbl_modelo_dep.addRow(new Object[]{d.getId(), d.getNome(), d.getGrau() });	}
+	}
+	
+	
+	// Funcao para escolher uma Foto e copiar para um BufferedImage
+	public void UploadFoto() {
+		JFileChooser fc_upload = new JFileChooser();
+		int resposta = fc_upload.showOpenDialog(null);
+		
+		if (resposta == JFileChooser.APPROVE_OPTION) {
+			File arquivo = fc_upload.getSelectedFile();
+			try {
+				
+				//imagem = ManipularImagem.getBufferedImage(arquivo.getAbsolutePath());
+				//lbl_mostrar_imagem.setIcon(GerarIcone(imagem));
+				GerarIcone(arquivo);
+				
+				BufferedImage img = ManipularImagem.getBufferedImage(arquivo.getAbsolutePath());
+				imagemByte = ManipularImagem.bufferedToBytes(img);
+			}catch(Exception ex) {
+				System.out.println(ex.getStackTrace().toString());
+			}
+		}   // else {System.out.println("Voce não selecionou nenhum arquivo!");}
+	}
+	
+	
+	
+	
+	// Gera o icone redimensionado ao label que será exibido
+	public void GerarIcone(byte[] img) {
+		
+		if (img instanceof byte[]) {
+			ImageIcon icone = new ImageIcon(img);
+			icone.setImage(icone.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+			lbl_mostrar_imagem.setIcon(icone);
+		}
+	}
+	// Gera o icone redimensionado ao label que será exibido
+	public void GerarIcone(File img) {
+		
+		if(img instanceof File) {
+			ImageIcon icone = new ImageIcon(img.getAbsolutePath());
+			icone.setImage(icone.getImage().getScaledInstance(lbl_mostrar_imagem.getWidth(),lbl_mostrar_imagem.getHeight(), Image.SCALE_DEFAULT));
+			lbl_mostrar_imagem.setIcon(icone);
+		}
+	}
+	
+	
+	
 }
