@@ -1,0 +1,5 @@
+Configuracoes Utilizadas no Projeto
+
+Ambiente de Desenvolvimento: eclipse-inst-win64
+Ferramenta de Desenvolvimento: jdk-14.0.2_windows-x64_bin
+Banco de Dados: mysql-installer-community-8.0.22.0

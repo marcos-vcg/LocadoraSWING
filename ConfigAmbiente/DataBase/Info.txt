@@ -1,0 +1,2 @@
+Banco de Dados: MySQL
+Versao: mysql-installer-community-8.0.22.0
