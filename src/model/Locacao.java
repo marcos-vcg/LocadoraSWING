@@ -1,7 +1,9 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
+
 
 public class Locacao implements Serializable{
 	
@@ -10,7 +12,8 @@ public class Locacao implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private int id;
+	private Integer id;
+	private Cliente cliente;
 	private Filme filme;
 	private Date locacao;
 	private Date devolucao;
@@ -22,18 +25,28 @@ public class Locacao implements Serializable{
 		
 	}
 	
-	public Locacao(Filme filme, Date locacao) {
+	public Locacao(Cliente cliente, Filme filme, Date locacao) {
+		
+		this.cliente = cliente;
 		this.filme = filme;
 		this.locacao = locacao;
 	}
 
 	
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 	
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public Cliente getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
 	}
 	
 	public Filme getFilme() {

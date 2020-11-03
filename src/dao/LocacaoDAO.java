@@ -1,12 +1,11 @@
 package dao;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import model.Dependente;
-import model.Grau;
 import model.Locacao;
+import util.ManipularDatas;
 
 public class LocacaoDAO {
 	private DataSource datasource;
@@ -32,6 +31,7 @@ public class LocacaoDAO {
 			while(rs.next()) {
 				
 				locacao.setId(rs.getInt("id"));
+				locacao.setCliente(clienteDao.busca(rs.getInt("cliente")));
 				locacao.setFilme(filmeDao.busca(rs.getInt("filme")));
 				locacao.setLocacao(rs.getDate("aluguel"));
 				locacao.setDevolucao(rs.getDate("devolucao"));
@@ -49,9 +49,9 @@ public class LocacaoDAO {
 		return null;
 	}
 	
-	public ArrayList<Locacao> readAllOf(int id){
+	public ArrayList<Locacao> filmesDoCLiente(int id){
 		try {
-			String SQL = "SELECT * FROM " + tabela + " WHERE titular = '" + id + "' ORDER BY aluguel";
+			String SQL = "SELECT * FROM " + tabela + " WHERE cliente = '" + id + "' ORDER BY aluguel";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ResultSet rs = ps.executeQuery();
 			
@@ -60,6 +60,7 @@ public class LocacaoDAO {
 			while(rs.next()) {
 				Locacao locacao = new Locacao();
 				locacao.setId(rs.getInt("id"));
+				locacao.setCliente(clienteDao.busca(rs.getInt("cliente")));
 				locacao.setFilme(filmeDao.busca(rs.getInt("filme")));
 				locacao.setLocacao(rs.getDate("aluguel"));
 				locacao.setDevolucao(rs.getDate("devolucao"));
@@ -88,6 +89,7 @@ public class LocacaoDAO {
 			while(rs.next()) {
 				Locacao locacao = new Locacao();
 				locacao.setId(rs.getInt("id"));
+				locacao.setCliente(clienteDao.busca(rs.getInt("cliente")));
 				locacao.setFilme(filmeDao.busca(rs.getInt("filme")));
 				locacao.setLocacao(rs.getDate("aluguel"));
 				locacao.setDevolucao(rs.getDate("devolucao"));
@@ -108,7 +110,7 @@ public class LocacaoDAO {
 	public void inserir(Locacao l) {
 		try {
 			
-			String SQL = "INSERT INTO " + tabela + " (filme, locacao) VALUES ('" + l.getFilme().getId() + "', '" + l.getLocacao() + "');";
+			String SQL = "INSERT INTO " + tabela + " (cliente, filme, aluguel) VALUES (" + l.getCliente().getId() + "," + l.getFilme().getId() + ", " + new Date(l.getLocacao().getTime()) + ");";
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
 			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
@@ -117,6 +119,48 @@ public class LocacaoDAO {
 			System.out.println("Erro Geral LocacaoDAO: " + e.getMessage());
 		}
 	}
+	
+	public void nserir(Locacao l) {
+		try {
+			
+			String SQL = "INSERT INTO " + tabela + " (cliente, filme, aluguel) VALUES (?,?,?)";
+			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			
+			ps.setInt(1, l.getCliente().getId());
+			ps.setInt(2, l.getFilme().getId());
+			ps.setDate(3, new Date(l.getLocacao().getTime()));
+			
+			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
+			ps.close();
+			
+		} catch (Exception e) {
+			System.out.println("Erro Geral LocacaoDAO: " + e.getMessage());
+		}
+	}
+	
+	public int quantosAlugados(int id){
+		try {
+			
+			String SQL = "SELECT COUNT(*) FROM " + tabela + " WHERE filme = '" + id + "' AND devolucao = null ;";
+			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
+			ResultSet rs = ps.executeQuery();
+			
+			int quantidade;
+			
+			while(rs.next()) {
+				quantidade = rs.getInt(1);
+				return quantidade;
+			}
+			ps.close();
+			
+		} catch(SQLException ex) {
+			System.err.println("Erro ao Recuperar Locacao: " + ex.getMessage());
+		} catch(Exception ex) {
+			System.err.println("Erro Geral LocacaoDAO" + ex.getMessage());
+		}
+		return 0;
+	}
+	
 	
 	public void editar(Locacao l) {
 		try {

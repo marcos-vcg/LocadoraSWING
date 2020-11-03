@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 
@@ -71,7 +72,7 @@ public class LocacaoCadastro extends JInternalFrame {
 	
 	DateFormat dataFormatada;
 	
-	private int idClienteSelect, indexClienteSelect, idLocacaoSelect, indexLocacaoSelect, idFilmeSelect, indexFilmeSelect; 
+	//private int idClienteSelect, indexClienteSelect, idLocacaoSelect, indexLocacaoSelect, idFilmeSelect, indexFilmeSelect; 
 	long prazoDevolucao;
 	
 	public LocacaoCadastro() {
@@ -114,13 +115,6 @@ public class LocacaoCadastro extends JInternalFrame {
 		this.cadLocacao = locacaoDao.readAll();
 		
 		
-		
-		idClienteSelect = -1;
-		indexClienteSelect = -1;
-		idLocacaoSelect = -1;
-		indexLocacaoSelect = -1;
-		idFilmeSelect = -1;
-		indexFilmeSelect = -1;
 		
 		dataFormatada = new SimpleDateFormat("dd/MM/yyyy");
 		prazoDevolucao = 15;
@@ -239,15 +233,13 @@ public class LocacaoCadastro extends JInternalFrame {
                 if(lsm.isSelectionEmpty()) {
                 	lbl_nome_selecionado.setText("");
                 	lbl_cpf_selecionado.setText("");
-                	idClienteSelect = -1;
-                	indexClienteSelect = -1;
+                	
                 }else {
-                	idClienteSelect = (int) tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 0);
+                	//Integer idClienteSelect = (Integer) tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 0);
+                	
                 	lbl_nome_selecionado.setText(tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 1).toString() );
                     lbl_cpf_selecionado.setText(tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 2).toString() );
-                    for(int i = 0; i < cadCliente.size(); i++) { 
-						if (cadCliente.get(i).getId() == idClienteSelect) {	indexClienteSelect = i;	} 
-                    }
+                  
                 }
                 
                 btn_locacoes.setEnabled(!lsm.isSelectionEmpty());
@@ -261,17 +253,7 @@ public class LocacaoCadastro extends JInternalFrame {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-                //altera os botoes para ativados somente se houver linha selecionada
-                if(lsm.isSelectionEmpty()) {
-                	idLocacaoSelect = -1;
-                	indexLocacaoSelect = -1;
-                }else {
-                	idLocacaoSelect = (int) tbl_modelo_locacoes.getValueAt(tbl_locacoes.getSelectedRow(), 0);  
-	                for(int i = 0; i < cadCliente.get(indexClienteSelect).getLocacoes().size(); i++) { 
-						if (cadCliente.get(indexClienteSelect).getLocacoes().get(i).getId() == idLocacaoSelect) { indexLocacaoSelect = i; } 
-					}
-                }
-                
+                //altera os botoes para ativados somente se houver linha selecionada                
                 btn_tbl_devolucao.setEnabled(!lsm.isSelectionEmpty());
             }
         });
@@ -338,6 +320,7 @@ public class LocacaoCadastro extends JInternalFrame {
 				tbl_filmes.getColumnModel().getColumn(3).setPreferredWidth(50);
 				
 				tbl_modelo_filmes.setNumRows(0);
+				cadFilme = filmeDao.readAll();
 				cadFilme.sort(Comparator.comparing(Filme::getLancamento));
 				for (Filme f : cadFilme) { tbl_modelo_filmes.addRow(new Object[]{f.getId(), f.getTitulo(), f.getGenero().getNome(), f.getCopias()});	}
 
@@ -347,26 +330,36 @@ public class LocacaoCadastro extends JInternalFrame {
 				tbl_filmes.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 		            @Override
 		            public void valueChanged(ListSelectionEvent e) {
-		                ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+		                //ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 		                //altera os botoes para ativados somente se houver linha selecionada
-		                if(lsm.isSelectionEmpty()) {
-		                	idFilmeSelect = -1;
-		                	indexFilmeSelect = -1;
-		                }else if(indexClienteSelect != -1) {
-		                	idFilmeSelect = (int) tbl_modelo_filmes.getValueAt(tbl_filmes.getSelectedRow(), 0);  
-		                	for(int i = 0; i < cadFilme.size(); i++) { 
-		                		if (cadFilme.get(i).getId() == idFilmeSelect) {	indexFilmeSelect = i; } 
-		                	} 
 		                	
-		                	int alugados = 0;
-			                for(int i = 0; i< cadCliente.size(); i++) {
-			                	for (Locacao l : cadCliente.get(i).getLocacoes()) { 
-			                		if ((l.getFilme().getId() == idFilmeSelect) && (l.getDevolucao() == null) ) { alugados++; }
-			                	}
-			                }
+		                if(tbl_clientes.getSelectedRow() != -1) {
 		                	
-			                if(alugados < cadFilme.get(indexFilmeSelect).getCopias()) {
-			                	cadCliente.get(indexClienteSelect).getLocacoes().add(new Locacao(cadFilme.get(indexFilmeSelect), new Date()));
+		                	int idClienteSelect = (int) tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 0); 
+		                	int idFilmeSelect = (int) tbl_modelo_filmes.getValueAt(tbl_filmes.getSelectedRow(), 0);     
+		                	cadLocacao = locacaoDao.filmesDoCLiente(idClienteSelect);
+		                	Cliente cliente = clienteDao.busca(idClienteSelect);
+		                	Filme filme = filmeDao.busca(idFilmeSelect);
+		                	
+		                	
+		                	
+		                	// Verifica se tem filme em atraso
+		    				for (Locacao l : cadLocacao) { 
+		    					long diasPassados = ((new Date().getTime() - l.getLocacao().getTime()) / 86400000L);
+		    					
+		    					if((l.getDevolucao() == null) && (diasPassados > prazoDevolucao)) {
+		    						JOptionPane.showMessageDialog(null, "Possui filme em atraso!", "Locação não Permitida!", JOptionPane.WARNING_MESSAGE);
+		    						escolherFilme.doDefaultCloseAction();
+		    						break;
+		    					} 	
+		    				}
+		                	
+		    				// Verifica se tem filme disponivel
+		    				int alugados = locacaoDao.quantosAlugados(idFilmeSelect);
+		                	int total = filme.getCopias();
+			                if(alugados < total) {
+			                	locacaoDao.inserir(new Locacao(cliente, filme, new Date()));
+			                	//cadCliente.get(indexClienteSelect).getLocacoes().add();
 			                	JOptionPane.showMessageDialog(null, "Locação efetuada com sucesso!", "Locação Efetuada!", JOptionPane.WARNING_MESSAGE);
 			                	setarTabelaLocacoes();	
 			                	escolherFilme.doDefaultCloseAction();
@@ -382,18 +375,6 @@ public class LocacaoCadastro extends JInternalFrame {
 		        });	
 				
 				
-				long diasPassados;
-				for (Locacao l : cadCliente.get(indexClienteSelect).getLocacoes()) { 
-					diasPassados = ((new Date().getTime() - l.getLocacao().getTime()) / 86400000L);
-					
-					if((l.getDevolucao() == null) && (diasPassados > prazoDevolucao)) {
-						JOptionPane.showMessageDialog(null, "Possui filme em atraso!", "Locação não Permitida!", JOptionPane.WARNING_MESSAGE);
-						escolherFilme.doDefaultCloseAction();
-						break;
-					} 	
-				}
-				
-					
 			}
 		});	
 		
@@ -401,8 +382,15 @@ public class LocacaoCadastro extends JInternalFrame {
 		btn_tbl_devolucao.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				// Setar como devolvido
-				if(indexClienteSelect != -1) {
-					cadCliente.get(indexClienteSelect).getLocacoes().get(indexLocacaoSelect).setDevolucao(new Date());
+				if(tbl_clientes.getSelectedRow() != -1) {
+					
+					//Integer idClienteSelect = (Integer) tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 0);
+					Integer idLocacaoSelect = (Integer) tbl_modelo_locacoes.getValueAt(tbl_locacoes.getSelectedRow(), 0);
+					Locacao locacao = locacaoDao.busca(idLocacaoSelect);
+					locacao.setDevolucao(new Date());
+					locacaoDao.editar(locacao);
+					
+					//cadCliente.get(indexClienteSelect).getLocacoes().get(indexLocacaoSelect).setDevolucao(new Date());
 					JOptionPane.showMessageDialog(null, "Filme Devolvido com Sucesso!", "Devolução Efetuada!", JOptionPane.WARNING_MESSAGE);
 					setarTabelaLocacoes();
 				} else {
@@ -416,6 +404,8 @@ public class LocacaoCadastro extends JInternalFrame {
 	
 	
 	private void setarTabelaClientes() {
+		
+		cadCliente = clienteDao.readAll();
 		tbl_modelo_clientes.setNumRows(0);
 		cadCliente.sort(Comparator.comparing(Cliente::getNome));
 		for (Cliente c : cadCliente) { tbl_modelo_clientes.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf()});	}
@@ -423,14 +413,20 @@ public class LocacaoCadastro extends JInternalFrame {
 	
 	private void setarTabelaLocacoes () {
 		
-		if(indexClienteSelect != -1) {
+		if(tbl_clientes.getSelectedRow() != -1) {
+		//if(indexClienteSelect != -1) {
 			tbl_modelo_locacoes.setNumRows(0);
-			cadCliente.get(indexClienteSelect).getLocacoes().sort(Comparator.comparing(Locacao::getLocacao));
 			String situacao = "";
 			String devolucao = null;
 			long diasPassados;
 			
-			for (Locacao l : cadCliente.get(indexClienteSelect).getLocacoes()) { 
+			
+			Integer idClienteSelect = (Integer) tbl_modelo_clientes.getValueAt(tbl_clientes.getSelectedRow(), 0);
+			cadLocacao = locacaoDao.filmesDoCLiente(idClienteSelect);
+			cadLocacao.sort(Comparator.comparing(Locacao::getLocacao));
+			
+			
+			for (Locacao l : cadLocacao) { 
 				diasPassados = ((new Date().getTime() - l.getLocacao().getTime())/ 86400000L);
 				if(l.getDevolucao() != null) {
 					situacao = "Devolvido";
