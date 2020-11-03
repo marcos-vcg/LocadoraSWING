@@ -107,20 +107,8 @@ public class LocacaoDAO {
 		return null;
 	}
 	
-	public void inserir(Locacao l) {
-		try {
-			
-			String SQL = "INSERT INTO " + tabela + " (cliente, filme, aluguel) VALUES (" + l.getCliente().getId() + "," + l.getFilme().getId() + ", " + new Date(l.getLocacao().getTime()) + ");";
-			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
-			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
-			ps.close();
-			
-		} catch (Exception e) {
-			System.out.println("Erro Geral LocacaoDAO: " + e.getMessage());
-		}
-	}
 	
-	public void nserir(Locacao l) {
+	public void inserir(Locacao l) {
 		try {
 			
 			String SQL = "INSERT INTO " + tabela + " (cliente, filme, aluguel) VALUES (?,?,?)";
@@ -130,7 +118,7 @@ public class LocacaoDAO {
 			ps.setInt(2, l.getFilme().getId());
 			ps.setDate(3, new Date(l.getLocacao().getTime()));
 			
-			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
+			ps.executeUpdate();						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
 		} catch (Exception e) {

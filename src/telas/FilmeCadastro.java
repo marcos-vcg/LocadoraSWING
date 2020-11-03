@@ -396,7 +396,7 @@ public class FilmeCadastro extends JInternalFrame {
 		txf_duracao.setText("");
 		txf_lancamento.setText("");
 		cbx_categoria.setSelectedIndex(0);
-		//lbl_mostrar_imagem.setIcon(null);
+		lbl_mostrar_imagem.setIcon(null);
 		//setarImagemPadrao();
 		imagemByte = null;
 		txa_sinopse.setText("");

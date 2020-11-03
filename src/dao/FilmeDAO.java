@@ -93,7 +93,7 @@ public class FilmeDAO {
 	
 	
 	
-	public Boolean inserir(Filme f) {
+	public Boolean nserir(Filme f) {
 		Boolean retorno = false;
 		try {
 			
@@ -111,14 +111,14 @@ public class FilmeDAO {
 	}
 	
 	
-	/*
+	
 	public Boolean inserir(Filme f) {
 		
 		Boolean retorno = false;
 		
 		try {
 			
-			String SQL = "INSERT INTO filme (titulo, genero, copias, sinopse, duracao, lancamento, imagem , categoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			String SQL = "INSERT INTO filme (titulo, genero, copias, sinopse, duracao, lancamento, imagem , categoria) VALUES (?,?,?,?,?,?,?,?)";
 			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
 			
 			//ps.setString(1, tabela);
@@ -131,7 +131,7 @@ public class FilmeDAO {
 			ps.setBytes(7, f.getImagem());
 			ps.setInt(8, f.getCategoria().getId());
 			
-			ps.executeUpdate(SQL);						// Usado para fazer qualquer alteração. Não tem nenhum retorno
+			ps.executeUpdate();						// Usado para fazer qualquer alteração. Não tem nenhum retorno
 			ps.close();
 			
 			retorno = true;
@@ -141,7 +141,7 @@ public class FilmeDAO {
 		}
 		
 		return retorno;
-	}*/
+	}
 	
 	
 	public void editar(Filme f) {
