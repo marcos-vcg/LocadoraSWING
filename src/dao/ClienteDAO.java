@@ -19,6 +19,30 @@ public class ClienteDAO {
 	}
 	
 	
+	public int ultimoCliente(){
+		try {
+			String SQL = "SELECT MAX(id) FROM " + tabela + ";";
+			java.sql.PreparedStatement ps = dataSource.getConnection().prepareStatement(SQL);
+			ResultSet rs = ps.executeQuery();
+			
+			int ultimoId;
+			
+			while(rs.next()) {
+				
+				ultimoId = rs.getInt(1);
+				return ultimoId;
+			}
+			ps.close();
+			
+			
+		} catch(SQLException ex) {
+			System.err.println("Erro ao Recuperar Id do Ultimo cliente  " + ex.getMessage());
+		} catch(Exception ex) {
+			System.err.println("Erro Geral " + ex.getMessage());
+		}
+		return 0;
+	}
+	
 	public Cliente busca(Integer id){
 		try {
 			String SQL = "SELECT * FROM " + tabela + " WHERE id = '" + id + "';";
@@ -75,7 +99,7 @@ public class ClienteDAO {
 				cliente.setEndereco(rs.getString("endereco"));
 				cliente.setImagem(rs.getBytes("imagem"));
 				
-				System.out.println("Filme lido");
+				System.out.println("Cliente lido");
 				
 				
 				if(cliente.getId() != null) {
