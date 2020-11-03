@@ -17,7 +17,17 @@ public class Locacao implements Serializable{
 	
 
 	
+	
+	public Locacao() {
+		
+	}
+	
+	public Locacao(Filme filme, Date locacao) {
+		this.filme = filme;
+		this.locacao = locacao;
+	}
 
+	
 	public int getId() {
 		return id;
 	}

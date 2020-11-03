@@ -22,6 +22,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import dao.CategoriaDAO;
+import dao.DataSource;
+import dao.FilmeDAO;
+import dao.GeneroDAO;
+import dao.ClienteDAO;
+import dao.LocacaoDAO;
 import model.Categoria;
 import model.Cliente;
 import model.Filme;
@@ -33,9 +39,21 @@ import model.Locacao;
 public class LocacaoCadastro extends JInternalFrame {
 
 	static final int xPosition = 30, yPosition = 30;
-		
+	
+	
+	DataSource dataSource;
+	FilmeDAO filmeDao;
+	GeneroDAO generoDao;
+	CategoriaDAO categoriaDao;
+	ClienteDAO clienteDao;
+	LocacaoDAO locacaoDao;
+	
+	ArrayList<Filme> cadFilme;	
+	ArrayList<Genero> cadGenero;
+	ArrayList<Categoria> cadCategoria;
 	ArrayList<Cliente> cadCliente;
-	ArrayList<Filme> cadFilme;
+	ArrayList<Locacao> cadLocacao;
+
 
 	JTabbedPane abas;
 	JPanel pnl_clientes, pnl_locacoes, teste;
@@ -56,7 +74,7 @@ public class LocacaoCadastro extends JInternalFrame {
 	private int idClienteSelect, indexClienteSelect, idLocacaoSelect, indexLocacaoSelect, idFilmeSelect, indexFilmeSelect; 
 	long prazoDevolucao;
 	
-	public LocacaoCadastro(ArrayList<Filme> cadFilme, ArrayList<Genero> cadGenero, ArrayList<Categoria> cadCategoria, ArrayList<Cliente> cadCliente) {
+	public LocacaoCadastro() {
 		super("Locação de Filmes", true, // resizable
 				true, // closable
 				true, // maximizable
@@ -65,8 +83,10 @@ public class LocacaoCadastro extends JInternalFrame {
 		setLocation(xPosition, yPosition);
 		setLayout(null);
 
-		this.cadCliente = cadCliente;
-		this.cadFilme = cadFilme;
+		
+		//ArrayList<Filme> cadFilme, ArrayList<Genero> cadGenero, ArrayList<Categoria> cadCategoria, ArrayList<Cliente> cadCliente
+		//this.cadCliente = cadCliente;
+		//this.cadFilme = cadFilme;
 		
 		setarElementos();
 		adicionarListeners();
@@ -76,6 +96,24 @@ public class LocacaoCadastro extends JInternalFrame {
 
 	
 	private void setarElementos () {
+		
+		// Controlador do Acesso ao Banco de Dados
+		dataSource = new DataSource();
+		
+		filmeDao = new FilmeDAO(dataSource);
+		generoDao = new GeneroDAO(dataSource);
+		categoriaDao = new CategoriaDAO(dataSource);
+		clienteDao = new ClienteDAO(dataSource);
+		locacaoDao = new LocacaoDAO(dataSource);
+		
+		
+		this.cadFilme = filmeDao.readAll();
+		this.cadGenero = generoDao.readAll();
+		this.cadCategoria = categoriaDao.readAll();
+		this.cadCliente = clienteDao.readAll();
+		this.cadLocacao = locacaoDao.readAll();
+		
+		
 		
 		idClienteSelect = -1;
 		indexClienteSelect = -1;

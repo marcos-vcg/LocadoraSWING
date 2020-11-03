@@ -164,7 +164,7 @@ class Main {
 		final JDesktopPane jdpNova = new JDesktopPane();
 		i7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				LocacaoCadastro novaFrame = new LocacaoCadastro(filmes, generos, categorias, clientes);
+				LocacaoCadastro novaFrame = new LocacaoCadastro();
 				
 				jdpNova.add(novaFrame);
 				novaFrame.setVisible(true);

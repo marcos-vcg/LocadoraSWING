@@ -500,7 +500,9 @@ public class ClienteCadastro extends JInternalFrame {
 							Integer idDependenteSelecionado = (Integer) tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0);
 							Dependente dependente = dependenteDao.busca(idDependenteSelecionado);
 							
-							dependente.setNome(txf_dependente.getText().toString());
+							String palavra = txf_dependente.getText();
+							palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
+							dependente.setNome(palavra);
 							dependente.setGrau(Grau.valueOf(cbx_grau.getSelectedItem().toString()));
 							
 							dependenteDao.editar(dependente);
@@ -511,7 +513,10 @@ public class ClienteCadastro extends JInternalFrame {
 						
 						for (Dependente d: temp) {
 							if(d.getId() == tbl_modelo_dep.getValueAt(tbl_dependentes.getSelectedRow(), 0)) {
-								d.setNome(txf_dependente.getText().toString());
+								
+								String palavra = txf_dependente.getText();
+								palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
+								d.setNome(palavra);
 								d.setGrau(Grau.valueOf(cbx_grau.getSelectedItem().toString()));
 							}
 						}
@@ -533,7 +538,9 @@ public class ClienteCadastro extends JInternalFrame {
 						cadDependente = dependenteDao.readAll(idClienteSelect);
 						if(cadDependente == null || cadDependente.size()<3) {
 							
-							Dependente dependente = new Dependente(txf_dependente.getText().toString() , Grau.valueOf(cbx_grau.getSelectedItem().toString()));
+							String palavra = txf_dependente.getText();
+							palavra = palavra.substring(0,1).toUpperCase().concat(palavra.substring(1).toLowerCase());
+							Dependente dependente = new Dependente(palavra , Grau.valueOf(cbx_grau.getSelectedItem().toString()));
 							dependente.setTitular(clienteDao.busca(idClienteSelect));
 							dependenteDao.inserir(dependente);
 							JOptionPane.showMessageDialog(null, "O Dependente Foi Cadastrado!", "Cadastro Efetuado!", JOptionPane.WARNING_MESSAGE);
