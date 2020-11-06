@@ -11,11 +11,12 @@ import com.mysql.fabric.xmlrpc.base.Data;
 
 public class ManipularDatas {
 
-	public static Date enviarDataBD(Date data) {
+	
+	/* public static Date enviarDataBD(Date data) {
 		SimpleDateFormat form = new SimpleDateFormat("aaaa-mm-dd");
 		Date d = form.format(data);
 		return new Date (form.format(data));
-	}
+	}*/
 	
 	
 	public static String convDataBanco(String dataSistema) {
@@ -31,7 +32,7 @@ public class ManipularDatas {
 	}
 	
 	
-	public static Data convDataJava(String dataBanco) {
+	public static String convDataJava(String dataBanco) {
 	    java.util.Date dataFormatada;
 	    String dataSistema = "";//variavel que vai receber a data para o sistema
 	    try {//Conversão da data do sistema para formato da data do Banco
@@ -60,8 +61,6 @@ public class ManipularDatas {
 		return data.getYear()+"-"+data.getMonth()+"-"+data.getDay();
 	}
 	
-	public static Date dataParaJava(String data) {
-		return data
-	}
+	
 	
 }
