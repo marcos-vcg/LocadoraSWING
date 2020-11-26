@@ -153,9 +153,13 @@ public class LocacaoDAO {
 	public void editar(Locacao l) {
 		try {
 			
-			String SQL = "UPDATE " + tabela + " SET devolucao = '" + l.getDevolucao() + "' WHERE id = " + l.getId() + ";" ;			// id é int, não colocar aspassimples
+			String SQL = "UPDATE " + tabela + " SET devolucao = ? WHERE id = ?;" ;			// id é int, não colocar aspassimples
 			java.sql.PreparedStatement ps = datasource.getConnection().prepareStatement(SQL);
-			ps.executeUpdate(SQL);
+			
+			ps.setDate(1, new Date(l.getDevolucao().getTime()));
+			ps.setInt(2, l.getId());
+			
+			ps.executeUpdate();
 			ps.close();
 			
 		} catch (Exception e) {
